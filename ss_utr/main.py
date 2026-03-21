@@ -462,7 +462,7 @@ def ejecutar():
             line = "\t".join(str(row[col]) for col in df_gff.columns)
             f.write(line + "\n")
 
-    print("Número de genes: ", len(records_gene_mRNA))
+    print("Número de genes válidos: ", len(records_gene_mRNA))
     print("Número de genes sin UTRs añadidos: ", n_gen_without_utrs)
     print("Número de 5'UTR añadidos: ", n_five)
     print("Número de 3'UTR añadidos: ", n_three)
