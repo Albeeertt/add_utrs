@@ -15,6 +15,7 @@ def obtener_argumentos():
     parser.add_argument('--stringtie', action="store_true", help="Execute stringtie.")
     parser.add_argument('--bams', type=str, required=False, help="Path to bams dir.")
     parser.add_argument('--out', type=str, required=True, help='Path for output csv.')
+    parser.add_argument('--all_genes', action="store_true", help="")
     return parser.parse_args()
 
 
@@ -26,7 +27,7 @@ def obtain_gff(route: str, encoding: str = 'utf-8') -> pd.DataFrame:
         data['old_idx'] = data.index
         return data
 
-def obtain_gene_w_mRNA(dataset: pd.DataFrame):
+def obtain_gene_w_mRNA(dataset: pd.DataFrame, all_genes: bool = False):
     '''
     1. Obtiene los genes que poseen mRNA y elimina el resto de genes. Solo elimina los genes que dan lugar a mRNA, el otro tipo de muestras las almacena.
     Una parte muy importante de esta función es que mantiene la estructura interna del gen que da lugar al mRNA, por tanto, se mantienen clases como exon, CDS, UTR, intrón, etc.
@@ -66,6 +67,10 @@ def obtain_gene_w_mRNA(dataset: pd.DataFrame):
         elif record['type'] == "gene" and gene_mRNA_record.get(record['ID'], -1) != -1:
             dict_gen_cds[record['ID']].append(record)
             records_genes_produce_mRNA.append(record)
+        elif all_genes and (record['type'] == 'three_prime_UTR' or record['type'] == 'five_prime_UTR'):
+            gen_record = dict_ids_record[dict_ids_record[record['Parent']]['Parent']]
+            del dict_gen_cds[gen_record['ID']]
+            records_genes_produce_mRNA.remove(gen_record)
 
     dict_mRNA_stuff = {}
     dict_idx_gen = {}
@@ -350,7 +355,8 @@ def ejecutar():
 
 
     records_transcript, structure_transcript = extract_info_gtf(df_gtf)
-    records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = obtain_gene_w_mRNA(df_gff_sorted)
+    all_genes = True if args.all_genes == None else False
+    records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = obtain_gene_w_mRNA(df_gff_sorted, all_genes)
 
     for gene in records_gene_mRNA:
         list_transcript = records_transcript[gene['chr']]
