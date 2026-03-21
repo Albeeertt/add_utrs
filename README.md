@@ -23,7 +23,7 @@ env_ss_utr\Scripts\activate
 pip install .
 ```
 
-# 2 Arguments
+# 2: Arguments
 
 - **--gff**: Path to the GFF file.
 - **--gtf**: Path to the GTF file.
@@ -31,3 +31,9 @@ pip install .
 - **--all_genes**: Some genes in your annotation (from the GFF3 file provided as an argument) may already have UTRs annotated. If you include this argument when running the tool, UTRs will be calculated for all genes. If you omit it, only genes that don’t yet have annotated UTRs will be processed.
 - **--stringtie**: ...
 - **bams**: ...
+
+# 3: Example
+
+```bash
+ss_utr --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --all_genes --out prueba2.gff3
+```
