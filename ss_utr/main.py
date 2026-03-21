@@ -15,7 +15,7 @@ def obtener_argumentos():
     parser.add_argument('--strigtie', action="store_true", help="Execute stringtie.")
     parser.add_argument('--bams', type=str, required=False, help="Path to bams dir.")
     parser.add_argument('--out', type=str, required=True, help='Path for output csv.')
-    return parser.parser_args()
+    return parser.parse_args()
 
 
 
