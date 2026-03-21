@@ -12,7 +12,7 @@ def obtener_argumentos():
 
     parser.add_argument('--gff', type=str, required=True, help="Path to GFF file.")
     parser.add_argument('--gtf', type=str, required=False, help="Path to stringtie output.")
-    parser.add_argument('--strigtie', action="store_true", help="Execute stringtie.")
+    parser.add_argument('--stringtie', action="store_true", help="Execute stringtie.")
     parser.add_argument('--bams', type=str, required=False, help="Path to bams dir.")
     parser.add_argument('--out', type=str, required=True, help='Path for output csv.')
     return parser.parse_args()
