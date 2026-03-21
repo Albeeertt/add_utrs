@@ -27,7 +27,7 @@ pip install .
 
 - **--gff**: Path to the GFF file.
 - **--gtf**: Path to the GTF file.
-- **--out**: Output directory where the newly generated GFF3 file will be stored.
+- **--out**: Output path where the newly generated GFF3 file will be stored.
 - **--all_genes**: Some genes in your annotation (from the GFF3 file provided as an argument) may already have UTRs annotated. If you include this argument when running the tool, UTRs will be calculated for all genes. If you omit it, only genes that don’t yet have annotated UTRs will be processed.
 - **--stringtie**: ...
 - **bams**: ...
