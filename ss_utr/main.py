@@ -361,8 +361,7 @@ def ejecutar():
 
 
     records_transcript, structure_transcript = extract_info_gtf(df_gtf)
-    all_genes = False if args.all_genes == None else True
-    records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = obtain_gene_w_mRNA(df_gff_sorted, all_genes)
+    records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = obtain_gene_w_mRNA(df_gff_sorted, args.all_genes)
 
     n_gen_without_utrs: int = 0
 
