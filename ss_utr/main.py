@@ -55,22 +55,28 @@ def obtain_gene_w_mRNA(dataset: pd.DataFrame, all_genes: bool = False):
     dict_gen_cds = defaultdict(list)
     # 1.2.2 Obtain records belong to mRNA/gene.
     records_genes_produce_mRNA = []
+    remove_for_utr = []
     for record in list_records:
         # Tienen que tener padre, así que se eliminan chr, ri y genes; solo quedan exones, CDS, UTRs, intrones y mRNA o cosas varias. Como se pone la condición de que el padre debe de ser mRNA entonces se busca las subpartes del mRNA.
         if dict_ids_record.get(record['Parent'], -1) != -1 and dict_ids_record[record['Parent']]['type'] == 'mRNA':
             if record['type'] == 'CDS' or record['type'] == 'exon':
                 gen_record = dict_ids_record[dict_ids_record[record['Parent']]['Parent']]
                 dict_gen_cds[gen_record['ID']].append(record)
+            elif (record['type'] == 'three_prime_UTR' or record['type'] == 'five_prime_UTR'):
+                gen_record = dict_ids_record[dict_ids_record[record['Parent']]['Parent']]
+                if gen_record not in remove_for_utr:
+                    remove_for_utr.append(gen_record)
         elif record['type'] == 'mRNA':
             dict_gen_cds[dict_ids_record[record['Parent']]['ID']].append(record)
         # Si es gen y produce mRNA también lo metemos.
         elif record['type'] == "gene" and gene_mRNA_record.get(record['ID'], -1) != -1:
             dict_gen_cds[record['ID']].append(record)
             records_genes_produce_mRNA.append(record)
-        elif all_genes and (record['type'] == 'three_prime_UTR' or record['type'] == 'five_prime_UTR'):
-            gen_record = dict_ids_record[dict_ids_record[record['Parent']]['Parent']]
-            del dict_gen_cds[gen_record['ID']]
-            records_genes_produce_mRNA.remove(gen_record)
+
+    if not all_genes:
+        for record_gene in remove_for_utr:
+            records_genes_produce_mRNA.remove(record_gene)
+            del dict_gen_cds[record_gene['ID']]
 
     dict_mRNA_stuff = {}
     dict_idx_gen = {}
@@ -253,9 +259,9 @@ def calculate_five_prime_utr(cds: Dict, transcript: Dict, min_value: int, min_mo
         new_utr = cds.copy()
         new_utr['start'], new_utr['end'] = t_start, t_end
         if cds['strand'] == '-':
-            new_utr['type'] = 'three_prime_utr'
+            new_utr['type'] = 'three_prime_UTR'
         else:
-            new_utr['type'] = 'five_prime_utr'
+            new_utr['type'] = 'five_prime_UTR'
         new_records.append(new_exon)
         new_records.append(new_utr)
         if min_value >= t_start:
@@ -268,9 +274,9 @@ def calculate_five_prime_utr(cds: Dict, transcript: Dict, min_value: int, min_mo
             new_utr = cds.copy()
             new_utr['start'], new_utr['end'] = t_start, c_start-1
             if cds['strand'] == '-':
-                new_utr['type'] = 'three_prime_utr'
+                new_utr['type'] = 'three_prime_UTR'
             else:
-                new_utr['type'] = 'five_prime_utr'
+                new_utr['type'] = 'five_prime_UTR'
             new_records.append(new_utr)
             min_modify_exon = t_start
             nucleotide_utr = c_start - t_start
@@ -292,9 +298,9 @@ def calculate_three_prime_utr(cds: Dict, transcript: Dict, max_value: int, max_m
         new_utr = cds.copy()
         new_utr['start'], new_utr['end'] = t_start, t_end
         if cds['strand'] == '-':
-            new_utr['type'] = 'five_prime_utr'
+            new_utr['type'] = 'five_prime_UTR'
         else:
-            new_utr['type'] = 'three_prime_utr'
+            new_utr['type'] = 'three_prime_UTR'
         new_records.append(new_exon)
         new_records.append(new_utr)
         if max_value <= t_end:
@@ -307,9 +313,9 @@ def calculate_three_prime_utr(cds: Dict, transcript: Dict, max_value: int, max_m
             new_utr = cds.copy()
             new_utr['start'], new_utr['end'] = c_end+1, t_end
             if cds['strand'] == '-':
-                new_utr['type'] = 'five_prime_utr'
+                new_utr['type'] = 'five_prime_UTR'
             else:
-                new_utr['type'] = 'three_prime_utr'
+                new_utr['type'] = 'three_prime_UTR'
             new_records.append(new_utr)
             max_modify_exon = t_end
             nucleotide_utr = t_end - c_end
@@ -355,13 +361,16 @@ def ejecutar():
 
 
     records_transcript, structure_transcript = extract_info_gtf(df_gtf)
-    all_genes = True if args.all_genes == None else False
+    all_genes = False if args.all_genes == None else True
     records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = obtain_gene_w_mRNA(df_gff_sorted, all_genes)
+
+    n_gen_without_utrs: int = 0
 
     for gene in records_gene_mRNA:
         list_transcript = records_transcript[gene['chr']]
         j: int = 0
         gene_iso_best = {}
+        no_utr: bool = True
         
         while j < len(list_transcript):
             transcript = list_transcript[j]
@@ -370,6 +379,8 @@ def ejecutar():
 
                 transcript_exon: List[Dict] = structure_transcript[transcript['ID_gene']][transcript['ID_transcript']]
                 isoform_exon_cds: Dict[str, List] = structure_gene[gene['ID']]
+
+                no_utr = False
 
                 for key_iso in isoform_exon_cds.keys():
                     distance, length_utrs, new_records, min_value, max_value, min_modify_exon, max_modify_exon = compare(transcript_exon, isoform_exon_cds[key_iso])
@@ -397,6 +408,8 @@ def ejecutar():
                 break
             j += 1
             
+        if no_utr:
+            n_gen_without_utrs += 1
         best_min = np.inf
         best_max = 0
         for key in gene_iso_best:
@@ -424,7 +437,13 @@ def ejecutar():
     df_gff = change_value(df_gff, list_idx_five, list_value_idx_five, 'start', 0)
 
     list_df_gff = df_gff.to_dict(orient='records')
+    n_five: int = 0
+    n_three: int = 0
     for idx, utr in enumerate(utrs):
+        if utrs['type'] == 'five_prime_UTR':
+            n_five += 1
+        elif utrs['type'] == 'three_prime_UTR':
+            n_three += 1
         new_idx = utr['old_idx']
         del utr['ID']
         del utr['Parent']
@@ -437,5 +456,15 @@ def ejecutar():
 
     df_gff = pd.DataFrame(list_df_gff)
     del df_gff['old_idx']
-            
-    df_gff.to_csv(args.out, sep = '\t', index=None, columns=None)
+
+    with open(args.out, "w") as f:
+        f.write("##gff-version 3\n")
+        for _, row in df_gff.iterrows():
+            line = "\t".join(str(row[col]) for col in df_gff.columns)
+            f.write(line + "\n")
+
+    print("Número de genes: ", len(records_gene_mRNA))
+    print("Número de genes sin UTRs añadidos: ", n_gen_without_utrs)
+    print("Número de 5'UTR añadidos: ", n_five)
+    print("Número de 3'UTR añadidos: ", n_three)
+
