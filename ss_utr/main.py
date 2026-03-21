@@ -1,4 +1,4 @@
-import argparser
+import argparse
 import subprocess
 import os
 import pandas as pd
@@ -8,7 +8,7 @@ from typing import List, Dict, Tuple
 
 def obtener_argumentos():
 
-    parser = argparser.ArgumentParser()
+    parser = argparse.ArgumentParser()
 
     parser.add_argument('--gff', type=str, required=True, help="Path to GFF file.")
     parser.add_argument('--gtf', type=str, required=False, help="Path to stringtie output.")
