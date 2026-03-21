@@ -440,9 +440,9 @@ def ejecutar():
     n_five: int = 0
     n_three: int = 0
     for idx, utr in enumerate(utrs):
-        if utrs['type'] == 'five_prime_UTR':
+        if utr['type'] == 'five_prime_UTR':
             n_five += 1
-        elif utrs['type'] == 'three_prime_UTR':
+        elif utr['type'] == 'three_prime_UTR':
             n_three += 1
         new_idx = utr['old_idx']
         del utr['ID']
