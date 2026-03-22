@@ -1,6 +1,6 @@
 
 from typing import List, Dict, Tuple
-from metrics import Metrics
+from .metrics import Metrics
 import numpy as np
 
 
