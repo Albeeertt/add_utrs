@@ -129,7 +129,7 @@ class HandleGFF:
 
         return records_genes_produce_mRNA, dict_mRNA_stuff, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five
     
-    def change_value(data_frame: pd.DataFrame, list_idx: List[int], list_values: List[int], column: str, value_to_ignore: int):
+    def change_value(self, data_frame: pd.DataFrame, list_idx: List[int], list_values: List[int], column: str, value_to_ignore: int):
         for idx, val in zip(list_idx, list_values):
             if val != value_to_ignore:
                 data_frame.at[idx, column] = val
@@ -183,7 +183,7 @@ class HandleGTF:
 
         return dict_gtf, dict_transcript_exon
     
-    def change_value(data_frame: pd.DataFrame, list_idx: List[int], list_values: List[int], column: str, value_to_ignore: int):
+    def change_value(self, data_frame: pd.DataFrame, list_idx: List[int], list_values: List[int], column: str, value_to_ignore: int):
         for idx, val in zip(list_idx, list_values):
             if val != value_to_ignore:
                 data_frame.at[idx, column] = val
