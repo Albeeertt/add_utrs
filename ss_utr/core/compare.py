@@ -65,7 +65,7 @@ class Compare:
         return total, total_utrs, new_records, new_min, new_max, min_modify_exon, max_modify_exon
     
 
-    def compare_gff_gtf(self, records_gene_mRNA: List[Dict], records_transcript: Dict[List], structure_transcript: Dict[Dict[List]], structure_gene: Dict[List], dict_idx_gen: Dict[Dict], dict_idx_mRNA: Dict[Dict], dict_idx_exon_three: Dict[Dict], dict_idx_exon_five: Dict[Dict]) -> Tuple:
+    def compare_gff_gtf(self, records_gene_mRNA: List[Dict], records_transcript, structure_transcript, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five) -> Tuple:
 
         utrs: List[Dict] = []
         list_idx_three: List[int] = []
