@@ -99,7 +99,7 @@ def ejecutar():
     print(".......................................................................................")
 
     vamos_a_ver: Dict = instance_compare.get_overlap_transcript_over_all_genes()
-    for key_transcript in vamos_a_ver.key():
+    for key_transcript in vamos_a_ver.keys():
         list_genes: List[Dict] = vamos_a_ver[key_transcript]
         if len(list_genes) > 1:
             print(key_transcript)
