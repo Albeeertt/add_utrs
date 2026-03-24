@@ -36,7 +36,7 @@ def ejecutar():
         subprocess.run([f'stringtie {string_bams} -o ss_utr.gtf'], shell=True)
         gtf = './ss_utr.gtf'
 
-    time_now = time.time()
+    # time_now = time.time()
     instance_handle_gff = HandleGFF()
     instance_handle_gtf = HandleGTF()
     instance_compare = Compare()
@@ -47,17 +47,17 @@ def ejecutar():
     df_gff_sorted: pd.DataFrame = df_gff.sort_values(by=['chr', 'start'])
     df_gtf: pd.DataFrame = df_gtf.sort_values(by=['chr', 'start'])
 
-    print("first step: ", time.time()-time_now)
-    time_now = time.time()
+    # print("first step: ", time.time()-time_now)
+    # time_now = time.time()
     records_transcript, structure_transcript = instance_handle_gtf.extract_info_gtf(df_gtf)
-    print("second step: ", time.time()-time_now)
-    time_now = time.time()
+    # print("second step: ", time.time()-time_now)
+    # time_now = time.time()
     records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = instance_handle_gff.obtain_gene_w_mRNA(df_gff_sorted, args.all_genes)
-    print("third step: ",time.time()-time_now)
-    time_now = time.time()
+    # print("third step: ",time.time()-time_now)
+    # time_now = time.time()
     utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs = instance_compare.compare_gff_gtf(records_gene_mRNA, records_transcript, structure_transcript, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five)
-    print("fourth step: ", time.time()-time_now)
-    time_now = time.time()
+    # print("fourth step: ", time.time()-time_now)
+    # time_now = time.time()
 
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_gene, [v[0] for v in list_value_idx_gene], 'start', 0)
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_gene, [v[1] for v in list_value_idx_gene], 'end', 0)
@@ -67,8 +67,8 @@ def ejecutar():
 
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_three, list_value_idx_three, 'end', 0)
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_five, list_value_idx_five, 'start', 0)
-    print("five step: ", time.time()-time_now)
-    time_now = time.time()
+    # print("five step: ", time.time()-time_now)
+    # time_now = time.time()
 
     list_df_gff = df_gff.to_dict(orient='records')
     n_five: int = 0
@@ -90,11 +90,11 @@ def ejecutar():
 
     df_gff = pd.DataFrame(list_df_gff)
     del df_gff['old_idx']
-    print("six step: ", time.time()-time_now)
-    time_now = time.time()
+    # print("six step: ", time.time()-time_now)
+    # time_now = time.time()
 
     instance_handle_gff.write_gff(df_gff, args.out)
-    print("seven step: ", time.time()- time_now)
+    # print("seven step: ", time.time()- time_now)
 
     print("Número de genes válidos: ", len(records_gene_mRNA))
     print("Número de genes sin UTRs añadidos: ", n_gen_without_utrs)
