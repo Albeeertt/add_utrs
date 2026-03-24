@@ -22,6 +22,7 @@ def obtener_argumentos():
     return parser.parse_args()
 
 def ejecutar():
+    print("Reading arguments...")
     args = obtener_argumentos()
 
     gff: str = args.gff
@@ -41,7 +42,9 @@ def ejecutar():
     instance_handle_gtf = HandleGTF()
     instance_compare = Compare()
 
+    print("Reading GFF file...")
     df_gff: pd.DataFrame = instance_handle_gff.obtain_gff(gff)
+    print("Reading GTF file...")
     df_gtf: pd.DataFrame = instance_handle_gtf.obtain_gtf(gtf)
 
     df_gff_sorted: pd.DataFrame = df_gff.sort_values(by=['chr', 'start'])
@@ -49,16 +52,19 @@ def ejecutar():
 
     # print("first step: ", time.time()-time_now)
     # time_now = time.time()
+    print("Extracting information from the GTF...")
     records_transcript, structure_transcript = instance_handle_gtf.extract_info_gtf(df_gtf)
     # print("second step: ", time.time()-time_now)
     # time_now = time.time()
+    print("Extracting information from the GFF...")
     records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = instance_handle_gff.obtain_gene_w_mRNA(df_gff_sorted, args.all_genes)
     # print("third step: ",time.time()-time_now)
     # time_now = time.time()
+    print("Obtaining UTRs...")
     utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs = instance_compare.compare_gff_gtf(records_gene_mRNA, records_transcript, structure_transcript, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five)
     # print("fourth step: ", time.time()-time_now)
     # time_now = time.time()
-
+    print("Changing the sample values...")
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_gene, [v[0] for v in list_value_idx_gene], 'start', 0)
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_gene, [v[1] for v in list_value_idx_gene], 'end', 0)
 
@@ -70,6 +76,7 @@ def ejecutar():
     # print("five step: ", time.time()-time_now)
     # time_now = time.time()
 
+    print("Adding the new UTRs...")
     list_df_gff = df_gff.to_dict(orient='records')
     n_five: int = 0
     n_three: int = 0
@@ -93,9 +100,11 @@ def ejecutar():
     # print("six step: ", time.time()-time_now)
     # time_now = time.time()
 
+    print("Writing the new GFF3...")
     instance_handle_gff.write_gff(df_gff, args.out)
     # print("seven step: ", time.time()- time_now)
 
+    print("---")
     print("Número de genes válidos: ", len(records_gene_mRNA))
     print("Número de genes sin UTRs añadidos: ", n_gen_without_utrs)
     print("Número de 5'UTR añadidos: ", n_five)
