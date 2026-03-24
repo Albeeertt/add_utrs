@@ -2,6 +2,7 @@
 from typing import List, Dict, Tuple
 
 import numpy as np
+from collections import defaultdict
 
 from .metrics import Metrics
 
@@ -11,6 +12,7 @@ class Compare:
 
     def __init__(self):
         self.instance_metrics = Metrics()
+        self.transcript_overlap_genes = None
 
 
     def compare(self, list_transcript: List[Dict], list_content_isoform: List[Dict]) -> Tuple:
@@ -88,6 +90,8 @@ class Compare:
 
         n_gen_without_utrs: int = 0
 
+        self.transcript_overlap_genes: Dict = defaultdict(list)
+
         for gene in records_gene_mRNA:
             list_transcript = records_transcript[gene['chr']]
             j: int = 0
@@ -101,6 +105,8 @@ class Compare:
 
                     transcript_exon: List[Dict] = structure_transcript[transcript['ID_gene']][transcript['ID_transcript']]
                     isoform_cds: Dict[str, List] = structure_gene[gene['ID']]
+
+                    self.transcript_overlap_genes[transcript['ID_gene']].append(gene)
 
                     no_utr = False
 
@@ -154,4 +160,7 @@ class Compare:
     
 
             
-
+    def get_overlap_transcript_over_all_genes(self):
+        return self.transcript_overlap_genes
+    
+    
