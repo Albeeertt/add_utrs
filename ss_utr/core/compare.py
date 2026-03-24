@@ -4,7 +4,6 @@ from typing import List, Dict, Tuple
 import numpy as np
 
 from .metrics import Metrics
-from .handleFile import HandleFasta
 
 
 

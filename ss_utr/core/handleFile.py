@@ -2,7 +2,6 @@ import pandas as pd
 from typing import Dict, List, Tuple
 import numpy as np
 from collections import defaultdict
-from Bio import SeqIO
 
 class HandleGFF:
 
@@ -145,9 +144,6 @@ class HandleGFF:
     
 
 class HandleGTF:
-
-    def __init__(self):
-        self.transcript_structure = None
 
     def obtain_gtf(self, route: str, encoding: str = 'utf-8') -> pd.DataFrame:
         '''Devuelve todos los cromosomas de la especie junto a su fichero GFF3 como un dataframe'''
