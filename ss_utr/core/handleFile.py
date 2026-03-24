@@ -13,6 +13,25 @@ class HandleGFF:
         data['old_idx'] = data.index
         return data
     
+
+    # def _extract_info_cds(self, record_cds: Dict, dict_mRNA_cds: Dict, dict_conexions: Dict) -> Dict:
+    #     # necesito la estructura de los cds
+    #     id_mRNA: str = record_cds['Parent']
+    #     id_gene: str = dict_conexions[record_cds['Parent']]['Parent']
+    #     if dict_mRNA_cds.get(id_gene, -1) == -1:
+    #         dict_mRNA_cds[id_gene] = {}
+    #         dict_mRNA_cds[id_gene][id_mRNA] = [record_cds]
+    #     elif dict_mRNA_cds[id_gene].get(id_mRNA, -1) == -1:
+    #         dict_mRNA_cds[id_gene][id_mRNA] = [record_cds]
+    #     else:
+    #         dict_mRNA_cds[id_gene][id_mRNA].append(record_cds)
+    #     return dict_mRNA_cds
+
+    # def _know_five_three_cds_prime(self, records_cds: Dict, min_value: int, max_value: int, min_record: Dict, max_record: Dict) -> Dict:
+    #     # Necesito anotar el mínimo y el máximo (etiquetarlos)
+    #     if min_value 
+
+    
     def obtain_gene_w_mRNA(self, dataset: pd.DataFrame, all_genes: bool = False) -> Tuple:
         '''
         1. Obtiene los genes que poseen mRNA y elimina el resto de genes. Solo elimina los genes que dan lugar a mRNA, el otro tipo de muestras las almacena.
@@ -23,8 +42,8 @@ class HandleGFF:
 
         new_list_records = []
         for record in list_records:
-            record['ID'] = dict( part.split("=", 1) for part in record['attributes'].split(";")).get("ID", 'None')  
-            record['Parent'] = dict( part.split("=", 1) for part in record['attributes'].split(";")).get("Parent", 'None') 
+            record['ID'] = dict( part.split("=", 1) for part in record['attributes'].split(";") if part != '').get("ID", 'None')  
+            record['Parent'] = dict( part.split("=", 1) for part in record['attributes'].split(";") if part != '').get("Parent", 'None') 
             new_list_records.append(record)
         list_records = new_list_records
 
