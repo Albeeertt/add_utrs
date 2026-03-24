@@ -1,7 +1,11 @@
 
 from typing import List, Dict, Tuple
-from .metrics import Metrics
+
 import numpy as np
+
+from .metrics import Metrics
+from .handleFile import HandleFasta
+
 
 
 class Compare:
@@ -37,6 +41,8 @@ class Compare:
                     utr_value, n_records, new_max, max_modify_exon = self.instance_metrics.calculate_three_prime_utr(cds, exon, new_max, max_modify_exon)
                     total_utrs += utr_value
                     new_records.extend(n_records)
+                # (consultar Aure) TODO: voy a penalizar en un x3 (en este caso es x6 ya que el mismo exon contiene el 3' y el 5') si el cds de los extremos no tiene covertura con algún exón en el transcrito.
+                # nucleotide_no_overlap *= 6
             elif cds.get('three', -1) != -1:
                 # TODO: calculo del error y del 3'UTR
                 for exon in list_transcript:
@@ -44,6 +50,8 @@ class Compare:
                     utr_value, n_records, new_max, max_modify_exon = self.instance_metrics.calculate_three_prime_utr(cds, exon, new_max, max_modify_exon)
                     total_utrs += utr_value
                     new_records.extend(n_records)
+                # (consultar Aure) TODO: voy a penalizar en un x3 si el cds de los extremos no tiene covertura con algún exón en el transcrito.
+                # nucleotide_no_overlap *= 3
             elif cds.get('five', -1) != -1:
                 # TODO: calculo del error y del 5'UTR
                 for exon in list_transcript:
@@ -51,6 +59,8 @@ class Compare:
                     utr_value, n_records, new_min, min_modify_exon = self.instance_metrics.calculate_five_prime_utr(cds, exon, new_min, min_modify_exon)
                     total_utrs += utr_value
                     new_records.extend(n_records)
+                # (consultar Aure) TODO: voy a penalizar en un x3 si el cds de los extremos no tiene covertura con algún exón en el transcrito.
+                # nucleotide_no_overlap *= 3
             else:
                 # TODO: calculo del error.
                 for exon in list_transcript:
@@ -91,12 +101,12 @@ class Compare:
                 if gene['end'] > transcript['start'] and transcript['end'] > gene['start'] and gene['strand'] == transcript['strand']:
 
                     transcript_exon: List[Dict] = structure_transcript[transcript['ID_gene']][transcript['ID_transcript']]
-                    isoform_exon_cds: Dict[str, List] = structure_gene[gene['ID']]
+                    isoform_cds: Dict[str, List] = structure_gene[gene['ID']]
 
                     no_utr = False
 
-                    for key_iso in isoform_exon_cds.keys():
-                        distance, length_utrs, new_records, min_value, max_value, min_modify_exon, max_modify_exon = self.compare(transcript_exon, isoform_exon_cds[key_iso])
+                    for key_iso in isoform_cds.keys():
+                        distance, length_utrs, new_records, min_value, max_value, min_modify_exon, max_modify_exon = self.compare(transcript_exon, isoform_cds[key_iso])
                         # TODO: if args.alt añades todos los elementos de new_records.
                         # TODO: Se selecciona el exon que se debe de ampliar para el nuevo 3'UTR pero ese exon no es el que se debe de ampliar. Este caso sucede cuando sobre el gen ya están anotados los UTRs y los exones entremos no corresponden a CDS.
                         if gene_iso_best.get(key_iso, -1) == -1:
@@ -142,3 +152,7 @@ class Compare:
 
 
         return utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs
+    
+
+            
+
