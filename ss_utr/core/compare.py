@@ -9,6 +9,9 @@ from .metrics import Metrics
 
 
 class Compare:
+    '''
+    - The Compare class contains the functions to find overlaps between the samples in the GFF file and the GTF file.
+    '''
 
     def __init__(self):
         self.instance_metrics = Metrics()
@@ -16,6 +19,15 @@ class Compare:
 
 
     def compare(self, list_transcript: List[Dict], list_content_isoform: List[Dict]) -> Tuple:
+        '''
+        - Compare the CDS of a gene with the exons of a transcript to extract the UTRs.
+
+           Specifically, this function returns the number of nucleotides in the CDS that do not overlap with the transcript exons (error measure), 
+           the size in nucleotides of the generated UTRs, 
+           the samples (3'UTR, 5'UTR, and associated exons), 
+           the new minimum and maximum size for the isoform, 
+           and the new minimum and maximum size for the exon of the first and last CDS.
+        '''
 
         list_transcript = sorted(list_transcript, key= lambda x: x['start'])
         list_content_isoform = sorted(list_content_isoform, key= lambda x: x['start'])
@@ -77,6 +89,15 @@ class Compare:
     
 
     def compare_gff_gtf(self, records_gene_mRNA: List[Dict], records_transcript, structure_transcript, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five) -> Tuple:
+        '''
+        - It seeks to find the best match between a gene and all possible transcripts. 
+          Once found, it stores information on the new UTRs and the updates that need to be made, along with their new values.
+
+          It returns all the newly generated UTRs, 
+          along with the indexes of the genes/mRNA/3'UTR/5'UTR that need updating, 
+          the new values, 
+          and the number of genes for which no UTRs have been added.
+        '''
 
         utrs: List[Dict] = []
         list_idx_three: List[int] = []
@@ -161,6 +182,8 @@ class Compare:
 
             
     def get_overlap_transcript_over_all_genes(self):
+        '''
+        - Groups all overlapping genes against the same transcript. 
+        This function should only be called after calling 'compare_gff_gtf'; otherwise, its value will be None.
+        '''
         return self.transcript_overlap_genes
-    
-    

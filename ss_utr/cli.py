@@ -1,4 +1,4 @@
-from ss_utr.main import ejecutar
+from ss_utr.main import execute_main_program
 
 def main():
-    ejecutar()
+    execute_main_program()

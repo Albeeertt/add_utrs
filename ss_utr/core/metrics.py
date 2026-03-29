@@ -4,6 +4,9 @@ from typing import Dict, List, Tuple
 class Metrics:
 
     def calculate_overlap(self, cds: Dict, transcript: Dict) -> int:
+        '''
+        - Returns the overlap (in nucleotides) between two given samples.
+        '''
         c_start, c_end = cds['start'], cds['end']
         t_start, t_end = transcript['start'], transcript['end']
 
@@ -18,6 +21,11 @@ class Metrics:
             return overlap
         
     def calculate_five_prime_utr(self, cds: Dict, transcript: Dict, min_value: int, min_modify_exon: int) -> Tuple:
+        '''
+        - It obtains the number of nucleotides that make up the new UTR, 
+        the generated samples (exons and 5'UTR), 
+        the minimum value for the isoform and the minimum value for the exon of the last CDS.
+        '''
         nucleotide_utr: int = 0
         new_records: List[Dict] = []
         c_start, c_end = cds['start'], cds['end']
@@ -56,6 +64,12 @@ class Metrics:
         return nucleotide_utr, new_records, min_value, min_modify_exon
     
     def calculate_three_prime_utr(self, cds: Dict, transcript: Dict, max_value: int, max_modify_exon: int) -> Tuple:
+        '''
+        - It obtains the number of nucleotides that make up the new UTR, 
+        the generated samples (exons and 3'UTR), 
+        the minimum value for the isoform and the minimum value for the exon of the last CDS.
+        '''
+        
         nucleotide_utr: int = 0
         new_records: List[Dict] = []
         c_start, c_end = cds['start'], cds['end']

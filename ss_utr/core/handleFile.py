@@ -4,10 +4,17 @@ import numpy as np
 from collections import defaultdict
 
 class HandleGFF:
+    '''
+    - The HandleGFF class contains all the functions associated with handling a GFF3.
+    '''
 
 
     def obtain_gff(self, route: str, encoding: str = 'utf-8') -> pd.DataFrame:
-        '''Devuelve todos los cromosomas de la especie junto a su fichero GFF3 como un dataframe'''
+        '''
+        - Read the GFF3 located in 'route' with the encoding specified in 'encoding'. 
+          Additionally, add the old_idx column, indicating the location of each sample 
+          in the original dataframe (for future modifications).
+        '''
         data = pd.read_csv(route, comment='#', sep='\t', header=None, encoding= encoding)
         data.columns = ['chr','db','type','start','end','score','strand','phase','attributes']
         data['old_idx'] = data.index
@@ -149,12 +156,48 @@ class HandleGFF:
         return records_genes_produce_mRNA, dict_mRNA_stuff, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five
     
     def change_value(self, data_frame: pd.DataFrame, list_idx: List[int], list_values: List[int], column: str, value_to_ignore: int):
+        '''
+        - Change the values in the 'column' column of the samples given by the 'list_idx' indices in the 'data_frame' dataframe. 
+          The new values are given in the 'list_values' list.
+        '''
         for idx, val in zip(list_idx, list_values):
             if val != value_to_ignore:
                 data_frame.at[idx, column] = val
         return data_frame
     
+    def add_utrs(self, gff: pd.DataFrame, utrs: List[Dict], clean_columns: bool = True) -> Tuple:
+        '''
+        - Add the utrs from the 'utrs' list to the 'gff' dataframe. 
+          If 'clean_columns' is true, the dataframe is formatted to remove extra columns and be in GFF3 format.
+        '''
+        list_df_gff = gff.to_dict(orient='records')
+        n_five: int = 0
+        n_three: int = 0
+        for idx, utr in enumerate(utrs):
+            if utr['type'] == 'five_prime_UTR':
+                n_five += 1
+            elif utr['type'] == 'three_prime_UTR':
+                n_three += 1
+            new_idx = utr['old_idx']
+            if clean_columns:
+                del utr['ID']
+                del utr['Parent']
+                if utr.get('five', -1) != -1:
+                    del utr['five']
+                if utr.get('three', -1) != -1:
+                    del utr['three']
+            list_df_gff.insert(new_idx+idx, utr)
+
+        df_gff = pd.DataFrame(list_df_gff)
+        if clean_columns:
+            del df_gff['old_idx']
+
+        return df_gff, n_five, n_three
+        
     def write_gff(self, gff: pd.DataFrame, route: str):
+        '''
+        - Write the 'gff' dataframe to the 'route' in GFF3 format.
+        '''
         with open(route, "w") as f:
             f.write("##gff-version 3\n")
             for _, row in gff.iterrows():
@@ -163,19 +206,36 @@ class HandleGFF:
     
 
 class HandleGTF:
+    '''
+    - The HandleGTF class contains all the functions associated with handling a GTF.
+    '''
+
+    def __init__(self):
+        self.transcripts = {}
 
     def obtain_gtf(self, route: str, encoding: str = 'utf-8') -> pd.DataFrame:
-        '''Devuelve todos los cromosomas de la especie junto a su fichero GFF3 como un dataframe'''
+        '''
+        - Read the GTF located in 'route' with the encoding specified in 'encoding'. 
+          Additionally, add the old_idx column, indicating the location of each sample 
+          in the original dataframe (for future modifications).
+        '''
         data = pd.read_csv(route, comment='#', sep='\t', header=None, encoding= encoding)
         data.columns = ['chr','db','type','start','end','score','strand','phase','attributes']
         data['old_idx'] = data.index
         return data
     
     def extract_info_gtf(self, gtf: pd.DataFrame) -> Tuple:
+        '''
+        - Extract information from the 'gtf' dataframe using the attributes column, specifically the gene and transcript identifiers.
+
+          First, group the transcripts for each chromosome into a single dictionary entry. 
+          Second, group the exons associated with each transcript.
+        '''
 
         list_gtf: List[Dict] = gtf.to_dict(orient='records')
         dict_gtf: Dict[str, Dict] = defaultdict(list)
         dict_transcript_exon: Dict[str, Dict[str, List]] = {} # gen, isoforma, exones.
+
 
         for record in list_gtf:
             record['attributes'] = record['attributes'].strip()
@@ -185,6 +245,11 @@ class HandleGTF:
                 record['ID_gene'] = id_record.replace('"', '')
                 record['ID_transcript'] = id_transcript.replace('"', '')
                 dict_gtf[record['chr']].append(record)
+                if self.transcripts.get(id_record, -1) != -1:
+                    self.transcripts[id_record][id_transcript] = record
+                else: 
+                    self.transcripts[id_record] = {}
+                    self.transcripts[id_record][id_transcript] = record
             else:
                 id_record: str = [ attribute.split(' ')[1] for attribute in record['attributes'].split(';') if attribute.split(' ')[0] == 'gene_id'][0]
                 id_transcript: str = [ attribute.strip().split(' ')[1] for attribute in record['attributes'].split(';') if attribute.strip().split(' ')[0] == 'transcript_id'][0]
@@ -203,6 +268,10 @@ class HandleGTF:
         return dict_gtf, dict_transcript_exon
     
     def change_value(self, data_frame: pd.DataFrame, list_idx: List[int], list_values: List[int], column: str, value_to_ignore: int):
+        '''
+        - Change the values in the 'column' column of the samples given by the 'list_idx' indices in the 'data_frame' dataframe. 
+          The new values are given in the 'list_values' list.
+        '''
         for idx, val in zip(list_idx, list_values):
             if val != value_to_ignore:
                 data_frame.at[idx, column] = val

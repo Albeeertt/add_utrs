@@ -9,7 +9,10 @@ import time
 from ss_utr.core.handleFile import HandleGFF, HandleGTF
 from ss_utr.core.compare import Compare
 
-def obtener_argumentos():
+def obtain_arguments():
+    '''
+    - Defines the program's arguments.
+    '''
 
     parser = argparse.ArgumentParser()
 
@@ -21,9 +24,24 @@ def obtener_argumentos():
     parser.add_argument('--all_genes', action="store_true", help="")
     return parser.parse_args()
 
-def ejecutar():
+def execute_main_program():
+
+    '''
+    - This function contains the program flow, where all calls to the different functions are made. The main steps performed are:
+    1. Read the arguments.
+    2. Execute stringtie if the argument are present.
+    3. Extract information from the GTF. (output of the stringtie)
+    4. Extract information from the GFF.
+    5. Obtain the UTRs.
+    6. Modify the values of the original GFF.
+    7. Add the new UTRs.
+    8. Write the new GFF.
+
+    The main dependencies are: HandleGFF, HandleGTF and Compare.
+    '''
+
     print("Reading arguments...")
-    args = obtener_argumentos()
+    args = obtain_arguments()
 
     gff: str = args.gff
     gtf: str = args.gtf
@@ -66,29 +84,10 @@ def ejecutar():
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_five, list_value_idx_five, 'start', 0)
 
     print("Adding the new UTRs...")
-    list_df_gff = df_gff.to_dict(orient='records')
-    n_five: int = 0
-    n_three: int = 0
-    for idx, utr in enumerate(utrs):
-        if utr['type'] == 'five_prime_UTR':
-            n_five += 1
-        elif utr['type'] == 'three_prime_UTR':
-            n_three += 1
-        new_idx = utr['old_idx']
-        del utr['ID']
-        del utr['Parent']
-        if utr.get('five', -1) != -1:
-            del utr['five']
-        if utr.get('three', -1) != -1:
-            del utr['three']
-        list_df_gff.insert(new_idx+idx, utr)
-
-
-    df_gff = pd.DataFrame(list_df_gff)
-    del df_gff['old_idx']
+    df_gff_w_utrs, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
 
     print("Writing the new GFF3...")
-    instance_handle_gff.write_gff(df_gff, args.out)
+    instance_handle_gff.write_gff(df_gff_w_utrs, args.out)
 
     print("---")
     print("Número de genes válidos: ", len(records_gene_mRNA))
@@ -98,10 +97,10 @@ def ejecutar():
 
     print(".......................................................................................")
 
-    vamos_a_ver: Dict = instance_compare.get_overlap_transcript_over_all_genes()
-    for key_transcript in vamos_a_ver.keys():
-        list_genes: List[Dict] = vamos_a_ver[key_transcript]
-        if len(list_genes) > 1:
-            print(key_transcript)
-            print(list_genes)
-            print("-------------------------")
+    # vamos_a_ver: Dict = instance_compare.get_overlap_transcript_over_all_genes()
+    # for key_transcript in vamos_a_ver.keys():
+    #     list_genes: List[Dict] = vamos_a_ver[key_transcript]
+    #     if len(list_genes) > 1:
+    #         print(key_transcript)
+    #         print(list_genes)
+    #         print("-------------------------")
