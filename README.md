@@ -1,6 +1,6 @@
 # Table of Contents
 
-- [What is ss_utr?](#1-what-is-ss_utr)
+- [What is add_utrs?](#1-what-is-add_utrs)
 - [Dependencies](#2-dependencies)
 - [Items to install](#3-items-to-install)
 - [Arguments](#4-arguments)
@@ -8,9 +8,9 @@
 - [Explanation of the output](#6-explanation-of-the-output)
 
 
-# 1: What is ss_utr?
+# 1: What is add_utrs?
 
-ss_utr is a tool for annotating the UTRs of each isoform of a gene from the transcripts obtained from **StringTie**.
+add_utrs is a tool for annotating the UTRs of each isoform of a gene from the transcripts obtained from **StringTie**.
 
 The first step to understanding this tool is knowing what StringTie is. It is a bioinformatics program that allows the reconstruction and quantification of **transcripts**. From sequencing reads, this tool can reconstruct transcripts, detect isoforms, and quantify gene expression.
 
@@ -82,13 +82,13 @@ pip install .
 The following execution will obtain the UTRs for all genes in the GFF3 file *Athaliana_447_Araport11.gene_exons.gff3* and generate a new GFF3 file called *atha_utrs.gff3*.
 
 ```bash
-ss_utr --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --all_genes --out atha_utrs.gff3
+add_utrs --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --all_genes --out atha_utrs.gff3
 ```
 
 The following execution will obtain the UTRs only for the genes that do not have UTRs annotated in the GFF3 file *Athaliana_447_Araport11.gene_exons.gff3* and will generate a new GFF3 file called *atha_utrs.gff3*.
 
 ```bash
-ss_utr --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --out atha_utrs.gff3
+add_utrs --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --out atha_utrs.gff3
 ```
 
 # 6: Explanation of the output

@@ -6,8 +6,8 @@ import os
 import pandas as pd
 import time
 
-from ss_utr.core.handleFile import HandleGFF, HandleGTF
-from ss_utr.core.compare import Compare
+from add_utrs.core.handleFile import HandleGFF, HandleGTF
+from add_utrs.core.compare import Compare
 
 def obtain_arguments():
     '''
