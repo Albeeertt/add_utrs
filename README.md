@@ -74,13 +74,23 @@ pip install .
 | gtf       | Path to the GTF file.            |
 | out | Output path where the newly generated GFF3 file will be stored.      |
 | all_genes | Some genes in your annotation (from the GFF3 file provided as an argument) may already have UTRs annotated. If you include this argument when running the tool, UTRs will be calculated for all genes. If you omit it, only genes that don’t yet have annotated UTRs will be processed.      |
-| stringtie | True if you want to execute stringTie.      |
+| stringtie | True if you want to execute StringTie.      |
 | bams | Path to the folder containing the .bam files. If the StringTie argument is true, this parameter is required.      |
 
 # 5: Example
 
+The following execution will obtain the UTRs for all genes in the GFF3 file *Athaliana_447_Araport11.gene_exons.gff3* and generate a new GFF3 file called *atha_utrs.gff3*.
+
 ```bash
-ss_utr --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --all_genes --out prueba2.gff3
+ss_utr --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --all_genes --out atha_utrs.gff3
+```
+
+The following execution will obtain the UTRs only for the genes that do not have UTRs annotated in the GFF3 file *Athaliana_447_Araport11.gene_exons.gff3* and will generate a new GFF3 file called *atha_utrs.gff3*.
+
+```bash
+ss_utr --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --out atha_utrs.gff3
 ```
 
 # 6: Explanation of the output
+
+The program output will be a new GFF3 file similar to the input file but with new samples added. These samples consist of new exons and UTRs generated for each gene isoform. Additionally, the start and end points of some samples (gene, mRNA, or exon) are modified to match the new samples.
