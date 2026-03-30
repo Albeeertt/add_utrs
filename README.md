@@ -48,7 +48,7 @@ This terminal command sequence executes the following:
 ## 3.1: MacOS and Linux
 
 ```bash
-git clone https://github.com/Albeeertt/ss_utr.git
+git clone https://github.com/Albeeertt/add_utrs.git
 cd ss_utr
 python3.10 -m venv env_ss_utr
 source env_ss_utr/bin/activate
@@ -59,7 +59,7 @@ pip install .
 ## 3.2: Windows
 
 ```bash
-git clone https://github.com/Albeeertt/ss_utr.git
+git clone https://github.com/Albeeertt/add_utrs.git
 cd ss_utr
 python3.10 -m venv env_ss_utr
 env_ss_utr\Scripts\activate
