@@ -144,22 +144,17 @@ class HandleGFF:
         dict_limits_genes = {}
         struct_genes_in_CHR_and_strand_order = {}
         for chr_key in self.struct_genes_in_CHR_and_strand.keys():
-            print(".............")
-            print(chr_key)
             struct_genes_in_CHR_and_strand_order[chr_key] = {}
             for strand_key in self.struct_genes_in_CHR_and_strand[chr_key].keys():
-                print(strand_key)
                 struct_genes_in_CHR_and_strand_order[chr_key][strand_key] = {}
                 list_chr_strand: List[Dict] = self.struct_genes_in_CHR_and_strand[chr_key][strand_key]
                 struct_genes_in_CHR_and_strand_order[chr_key][strand_key]['start'] = sorted(list_chr_strand, key=lambda x: x['start'])
                 struct_genes_in_CHR_and_strand_order[chr_key][strand_key]['end'] = sorted(list_chr_strand, key=lambda x: x['end'])
         
-        print("ahora records....")
         for record in list_records:
             dict_list_start_end: Dict[str, List] = struct_genes_in_CHR_and_strand_order[record['chr']][record['strand']]
             limit_start, limit_end = self.obtain_limits_gene(record, dict_list_start_end['end'], dict_list_start_end['start'])
             dict_limits_genes[record['ID']] = (limit_start, limit_end)
-            print("ya")
 
         return dict_limits_genes
 
@@ -181,6 +176,7 @@ class HandleGFF:
         while j < len(list_start_sort):
             record_limit_end: Dict = list_start_sort[j]
             if record_limit_end['start'] < end:
+                j += 1
                 continue
             elif record_limit_end['start'] < limit_end:
                 limit_end = record_limit_end['start']
