@@ -116,6 +116,11 @@ class Compare:
         for gene in records_gene_mRNA:
             list_transcript = records_transcript[gene['chr']]
             start_limit, end_limit = limits_gene[gene['ID']]
+            if gene['ID'] == 'AT1G01020.Araport11.447':
+                print("..........")
+                print(start_limit)
+                print(end_limit)
+                print("..........")
             length_gene: int = gene['end'] - gene['start']
             condition: float = self.proportion * length_gene
             condition_utrs: float = self.proportion_utrs * length_gene
