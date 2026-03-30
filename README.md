@@ -1,11 +1,11 @@
 # Table of Contents
 
-- [What is ss_utr?](#what-is-ss_utr)
-- [Dependencies](#dependencies)
-- [Items to install](#items-to-install)
-- [Arguments](#arguments)
-- [Example](#example)
-- [Explanation of the output](#explanation-of-the-output)
+- [What is ss_utr?](#1-what-is-ss_utr)
+- [Dependencies](#2-dependencies)
+- [Items to install](#3-items-to-install)
+- [Arguments](#4-arguments)
+- [Example](#5-example)
+- [Explanation of the output](#6-explanation-of-the-output)
 
 
 # 1: What is ss_utr?
@@ -28,7 +28,7 @@ Therefore, the best-matching transcript for a given gene isoform is defined acco
 2. The CDS of the isoform is used as an error metric. Each CDS region must be covered by a corresponding exon in the candidate transcript; otherwise, the number of nucleotides in the non-overlapping CDS regions is counted as error. This allows filtering out transcripts that do not correspond to the isoform under analysis.
 3. If multiple transcripts yield the same error, the total length of their UTR regions is used as a tiebreaker. Transcripts with longer UTRs are prioritized.
 
-# 2. Dependencies
+# 2: Dependencies
 
 You need to have Python version 3.10 and StringTie version 3.0.0 or later installed.
 
