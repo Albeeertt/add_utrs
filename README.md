@@ -49,9 +49,9 @@ This terminal command sequence executes the following:
 
 ```bash
 git clone https://github.com/Albeeertt/add_utrs.git
-cd ss_utr
-python3.10 -m venv env_ss_utr
-source env_ss_utr/bin/activate
+cd add_utrs
+python3.10 -m venv env_add_utrs
+source env_add_utrs/bin/activate
 pip install .
 ```
 
@@ -60,9 +60,9 @@ pip install .
 
 ```bash
 git clone https://github.com/Albeeertt/add_utrs.git
-cd ss_utr
-python3.10 -m venv env_ss_utr
-env_ss_utr\Scripts\activate
+cd add_utrs
+python3.10 -m venv env_add_utrs
+env_add_utrs\Scripts\activate
 pip install .
 ```
 
