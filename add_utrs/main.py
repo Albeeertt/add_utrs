@@ -53,9 +53,6 @@ def execute_main_program():
     route_gff3: str = args.out+OUTPUT_GFF3 if args.out.endswith('/') else args.out+'/'+OUTPUT_GFF3
     route_overlap: str = args.out+OUTPUT_OVERLAP if args.out.endswith('/') else args.out+'/'+OUTPUT_OVERLAP
 
-    print(route_gff3)
-    print(route_overlap)
-
     if args.stringtie:
         string_bams = ""
         for file in os.listdir(bams):

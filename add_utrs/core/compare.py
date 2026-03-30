@@ -16,7 +16,10 @@ class Compare:
     def __init__(self):
         # TODO: add conditions for filter bad transcript that match with the isoform of the gene.
         # The filters are:
-        # 
+        # - Evitar solapamiento entre genes. (seleccionando un mejor transcrito o recortando el transcrito dado).
+        # - Filtros para el transcrito:
+        # -1. Que exista un mínimo de solapamiento entre el transcrito y la isoforma.
+        # -2. que el transcrito no sea demasiado largo en los extremos.
         self.instance_metrics = Metrics()
         self.transcript_overlap_genes = None
 
