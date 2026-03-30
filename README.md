@@ -1,3 +1,13 @@
+# Table of Contents
+
+- [What is ss_utr?](#What is ss_utr?)
+- [Dependencies](#Dependencies)
+- [Items to install](#Items to install)
+- [Arguments](#Arguments)
+- [Example](#Example)
+- [Explanation of the output](#Explanation of the output.)
+
+
 # 1: What is ss_utr?
 
 ss_utr is a tool for annotating the UTRs of each isoform of a gene from the transcripts obtained from **StringTie**.
@@ -18,11 +28,24 @@ Therefore, the best-matching transcript for a given gene isoform is defined acco
 2. The CDS of the isoform is used as an error metric. Each CDS region must be covered by a corresponding exon in the candidate transcript; otherwise, the number of nucleotides in the non-overlapping CDS regions is counted as error. This allows filtering out transcripts that do not correspond to the isoform under analysis.
 3. If multiple transcripts yield the same error, the total length of their UTR regions is used as a tiebreaker. Transcripts with longer UTRs are prioritized.
 
-# 2: Items to install
+# 2. Dependencies
 
-For the tool to work, copy and paste the following commands into the terminal depending on whether you are using macOS/Linux or Windows
+You need to have Python version 3.10 and StringTie version 3.0.0 or later installed.
 
-## 2.1: MacOS and Linux
+Other library dependencies are handled by the *requeriments.txt* file and are resolved automatically.
+
+# 3: Items to install
+
+For the tool to work, copy and paste the following commands into the terminal depending on whether you are using macOS/Linux or Windows.
+
+This terminal command sequence executes the following:
+
+1. Downloads the program locally.
+2. Creates a Python environment (version 3.10) to manage dependencies with other libraries.
+3. Activates the environment.
+4. Installs the program and the libraries specified in *requeriments.txt*
+
+## 3.1: MacOS and Linux
 
 ```bash
 git clone https://github.com/Albeeertt/ss_utr.git
@@ -32,7 +55,8 @@ source env_ss_utr/bin/activate
 pip install .
 ```
 
-## 2.2: Windows
+
+## 3.2: Windows
 
 ```bash
 git clone https://github.com/Albeeertt/ss_utr.git
@@ -42,7 +66,16 @@ env_ss_utr\Scripts\activate
 pip install .
 ```
 
-# 3: Arguments
+# 4: Arguments
+
+| Argument       | Explanation                          |
+|-----------------|--------------------------------------|
+| --gff          | Path to the GFF file.      |
+| --gtf       | Path to the GTF file.            |
+| --out | Output path where the newly generated GFF3 file will be stored.      |
+| --all_genes | Some genes in your annotation (from the GFF3 file provided as an argument) may already have UTRs annotated. If you include this argument when running the tool, UTRs will be calculated for all genes. If you omit it, only genes that don’t yet have annotated UTRs will be processed.      |
+| --stringtie | True if you want to execute stringTie.      |
+| --bams | Path to the folder containing the .bam files. If the StringTie argument is true, this parameter is required.      |
 
 - **--gff**: Path to the GFF file.
 - **--gtf**: Path to the GTF file.
@@ -51,8 +84,10 @@ pip install .
 - **--stringtie**: ...
 - **bams**: ...
 
-# 4: Example
+# 5: Example
 
 ```bash
 ss_utr --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --all_genes --out prueba2.gff3
 ```
+
+# 6: Explanation of the output
