@@ -14,6 +14,9 @@ class Compare:
     '''
 
     def __init__(self):
+        # TODO: add conditions for filter bad transcript that match with the isoform of the gene.
+        # The filters are:
+        # 
         self.instance_metrics = Metrics()
         self.transcript_overlap_genes = None
 

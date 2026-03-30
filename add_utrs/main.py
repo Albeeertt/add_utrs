@@ -8,6 +8,7 @@ import time
 
 from add_utrs.core.handleFile import HandleGFF, HandleGTF
 from add_utrs.core.compare import Compare
+from add_utrs.utils.postProcess import ProcessTranscript
 
 def obtain_arguments():
     '''
@@ -20,7 +21,7 @@ def obtain_arguments():
     parser.add_argument('--gtf', type=str, required=False, help="Path to stringtie output.")
     parser.add_argument('--stringtie', action="store_true", help="Execute stringtie.")
     parser.add_argument('--bams', type=str, required=False, help="Path to bams dir.")
-    parser.add_argument('--out', type=str, required=True, help='Path for output csv.')
+    parser.add_argument('--out', type=str, required=True, help='Path to output directory')
     parser.add_argument('--all_genes', action="store_true", help="")
     return parser.parse_args()
 
@@ -37,8 +38,11 @@ def execute_main_program():
     7. Add the new UTRs.
     8. Write the new GFF.
 
-    The main dependencies are: HandleGFF, HandleGTF and Compare.
+    The main dependencies are: HandleGFF, HandleGTF, Compare and ProcessTranscript.
     '''
+
+    OUTPUT_GFF3: str = 'output.gff3'
+    OUTPUT_OVERLAP: str = 'overlap.json'
 
     print("Reading arguments...")
     args = obtain_arguments()
@@ -46,6 +50,11 @@ def execute_main_program():
     gff: str = args.gff
     gtf: str = args.gtf
     bams: str = args.bams
+    route_gff3: str = args.out+OUTPUT_GFF3 if args.out.endswith('/') else args.out+'/'+OUTPUT_GFF3
+    route_overlap: str = args.out+OUTPUT_OVERLAP if args.out.endswith('/') else args.out+'/'+OUTPUT_OVERLAP
+
+    print(route_gff3)
+    print(route_overlap)
 
     if args.stringtie:
         string_bams = ""
@@ -87,7 +96,7 @@ def execute_main_program():
     df_gff_w_utrs, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
 
     print("Writing the new GFF3...")
-    instance_handle_gff.write_gff(df_gff_w_utrs, args.out)
+    instance_handle_gff.write_gff(df_gff_w_utrs, route_gff3)
 
     print("---")
     print("Número de genes válidos: ", len(records_gene_mRNA))
@@ -97,10 +106,5 @@ def execute_main_program():
 
     print(".......................................................................................")
 
-    # vamos_a_ver: Dict = instance_compare.get_overlap_transcript_over_all_genes()
-    # for key_transcript in vamos_a_ver.keys():
-    #     list_genes: List[Dict] = vamos_a_ver[key_transcript]
-    #     if len(list_genes) > 1:
-    #         print(key_transcript)
-    #         print(list_genes)
-    #         print("-------------------------")
+    instance_ProcessTranscript = ProcessTranscript(instance_compare.get_overlap_transcript_over_all_genes(), records_transcript)
+    instance_ProcessTranscript.valid_genes(write_file=True,route=route_overlap)
