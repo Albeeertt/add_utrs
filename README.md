@@ -24,7 +24,7 @@ Therefore, an annotation file (GFF3) and the StringTie output are necessary. **B
 
 Given a gene isoform, it is common to find multiple transcripts that overlap with it, either because they correspond to alternative isoforms of the same gene or to transcripts from nearby genes.
 Therefore, the best-matching transcript for a given gene isoform is defined according to the following criteria:
-1. The transcript must overlap with at least one third of the nucleotides of the isoform.
+1. The transcript must overlap with at least one half of the nucleotides of the isoform.
 2. The CDS of the isoform is used as an error metric. Each CDS region must be covered by a corresponding exon in the candidate transcript; otherwise, the number of nucleotides in the non-overlapping CDS regions is counted as error. This allows filtering out transcripts that do not correspond to the isoform under analysis.
 3. If multiple transcripts yield the same error, the total length of their UTR regions is used as a tiebreaker. Transcripts with longer UTRs are prioritized.
 

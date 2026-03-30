@@ -13,15 +13,11 @@ class Compare:
     - The Compare class contains the functions to find overlaps between the samples in the GFF file and the GTF file.
     '''
 
-    def __init__(self):
-        # TODO: add conditions for filter bad transcript that match with the isoform of the gene.
-        # The filters are:
-        # - Evitar solapamiento entre genes. (seleccionando un mejor transcrito o recortando el transcrito dado).
-        # - Filtros para el transcrito:
-        # -1. Que exista un mínimo de solapamiento entre el transcrito y la isoforma.
-        # -2. que el transcrito no sea demasiado largo en los extremos.
+    def __init__(self, proportion: float = 4/5, proportion_utrs: float = 1/2):
         self.instance_metrics = Metrics()
         self.transcript_overlap_genes = None
+        self.proportion = proportion
+        self.proportion_utrs = proportion_utrs
 
 
     def compare(self, list_transcript: List[Dict], list_content_isoform: List[Dict]) -> Tuple:
@@ -60,8 +56,6 @@ class Compare:
                     utr_value, n_records, new_max, max_modify_exon = self.instance_metrics.calculate_three_prime_utr(cds, exon, new_max, max_modify_exon)
                     total_utrs += utr_value
                     new_records.extend(n_records)
-                # (consultar Aure) TODO: voy a penalizar en un x3 (en este caso es x6 ya que el mismo exon contiene el 3' y el 5') si el cds de los extremos no tiene covertura con algún exón en el transcrito.
-                # nucleotide_no_overlap *= 6
             elif cds.get('three', -1) != -1:
                 # TODO: calculo del error y del 3'UTR
                 for exon in list_transcript:
@@ -69,8 +63,6 @@ class Compare:
                     utr_value, n_records, new_max, max_modify_exon = self.instance_metrics.calculate_three_prime_utr(cds, exon, new_max, max_modify_exon)
                     total_utrs += utr_value
                     new_records.extend(n_records)
-                # (consultar Aure) TODO: voy a penalizar en un x3 si el cds de los extremos no tiene covertura con algún exón en el transcrito.
-                # nucleotide_no_overlap *= 3
             elif cds.get('five', -1) != -1:
                 # TODO: calculo del error y del 5'UTR
                 for exon in list_transcript:
@@ -78,8 +70,6 @@ class Compare:
                     utr_value, n_records, new_min, min_modify_exon = self.instance_metrics.calculate_five_prime_utr(cds, exon, new_min, min_modify_exon)
                     total_utrs += utr_value
                     new_records.extend(n_records)
-                # (consultar Aure) TODO: voy a penalizar en un x3 si el cds de los extremos no tiene covertura con algún exón en el transcrito.
-                # nucleotide_no_overlap *= 3
             else:
                 # TODO: calculo del error.
                 for exon in list_transcript:
@@ -104,6 +94,9 @@ class Compare:
           the new values, 
           and the number of genes for which no UTRs have been added.
         '''
+        # TODO: add conditions for filter bad transcript that match with the isoform of the gene.
+        # The filters are:
+        # - Evitar solapamiento entre genes. (seleccionando un mejor transcrito o recortando el transcrito dado) -> Es mejor saber dónde cae cada gen (fin del de antes e inicio del de después)
 
         utrs: List[Dict] = []
         list_idx_three: List[int] = []
@@ -121,14 +114,19 @@ class Compare:
 
         for gene in records_gene_mRNA:
             list_transcript = records_transcript[gene['chr']]
+            length_gene: int = gene['end'] - gene['start']
+            condition: float = self.proportion * length_gene
+            condition_utrs: float = self.proportion_utrs * length_gene
             j: int = 0
             gene_iso_best = {}
             no_utr: bool = True
             
             while j < len(list_transcript):
                 transcript = list_transcript[j]
-                # TODO: quizá es mejor comparar las isoformas del gen contra los transcritos, en vez de el tamaño del gen al completo.
-                if gene['end'] > transcript['start'] and transcript['end'] > gene['start'] and gene['strand'] == transcript['strand']:
+                length_overlap = max(0, min(gene['end'], transcript['end']) - max(gene['start'], transcript['start']))
+                length_five = max(0, gene['start'] - transcript['start'])
+                length_three = max(0, transcript['end'] - gene['end'])
+                if gene['end'] > transcript['start'] and transcript['end'] > gene['start'] and gene['strand'] == transcript['strand'] and (length_overlap >= condition) and (length_five <= condition_utrs) and (length_three <= condition_utrs):
 
                     transcript_exon: List[Dict] = structure_transcript[transcript['ID_gene']][transcript['ID_transcript']]
                     isoform_cds: Dict[str, List] = structure_gene[gene['ID']]
