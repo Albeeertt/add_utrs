@@ -95,10 +95,6 @@ class Compare:
           and the number of genes for which no UTRs have been added.
         '''
         # TODO: recorrido sobre la misma strand en list_transcript.
-        # TODO: add conditions for filter bad transcript that match with the isoform of the gene.
-        # The filters are:
-        # - Evitar solapamiento entre genes. (seleccionando un mejor transcrito o recortando el transcrito dado) -> Es mejor saber dónde cae cada gen (fin del de antes e inicio del de después)
-        # la condición se debe de aplicar sobre estas 4 variables que devuelve compare "new_min, new_max, min_modify_exon, max_modify_exon". cada gen tiene que traer sus límites.
 
         utrs: List[Dict] = []
         list_idx_three: List[int] = []
@@ -114,14 +110,14 @@ class Compare:
 
         self.transcript_overlap_genes: Dict = defaultdict(list)
 
+        for key_chr in records_transcript.keys():
+            for key_strand in records_transcript[key_chr].keys():
+                list_transcript_chr_strand = records_transcript[key_chr][key_strand]
+                records_transcript[key_chr][key_strand] = sorted(list_transcript_chr_strand, key=lambda x: x['start'])
+
         for gene in records_gene_mRNA:
-            list_transcript = records_transcript[gene['chr']]
+            list_transcript = records_transcript[gene['chr']][gene['strand']]
             start_limit, end_limit = limits_gene[gene['ID']]
-            if gene['ID'] == 'AT1G01020.Araport11.447':
-                print("..........")
-                print(start_limit)
-                print(end_limit)
-                print("..........")
             length_gene: int = gene['end'] - gene['start']
             condition: float = self.proportion * length_gene
             condition_utrs: float = self.proportion_utrs * length_gene

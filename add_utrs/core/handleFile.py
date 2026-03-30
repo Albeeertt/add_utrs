@@ -182,7 +182,7 @@ class HandleGFF:
                 limit_end = record_limit_end['start']
             j += 1
 
-        return limit_start+1, limit_end+1
+        return limit_start+1, limit_end-1
 
 
 
@@ -264,7 +264,7 @@ class HandleGTF:
         '''
 
         list_gtf: List[Dict] = gtf.to_dict(orient='records')
-        dict_gtf: Dict[str, Dict] = defaultdict(list)
+        dict_gtf: Dict[str, Dict] = defaultdict( lambda: defaultdict(list))
         dict_transcript_exon: Dict[str, Dict[str, List]] = {} # gen, isoforma, exones.
 
 
@@ -275,7 +275,7 @@ class HandleGTF:
                 id_transcript: str = [ attribute.strip().split(' ')[1] for attribute in record['attributes'].split(';') if attribute.strip().split(' ')[0] == 'transcript_id'][0]
                 record['ID_gene'] = id_record.replace('"', '')
                 record['ID_transcript'] = id_transcript.replace('"', '')
-                dict_gtf[record['chr']].append(record)
+                dict_gtf[record['chr']][record['strand']].append(record)
                 if self.transcripts.get(id_record, -1) != -1:
                     self.transcripts[id_record][id_transcript] = record
                 else: 
