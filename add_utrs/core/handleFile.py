@@ -148,8 +148,8 @@ class HandleGFF:
             for strand_key in self.struct_genes_in_CHR_and_strand[chr_key].keys():
                 struct_genes_in_CHR_and_strand_order[chr_key][strand_key] = {}
                 list_chr_strand: List[Dict] = self.struct_genes_in_CHR_and_strand[chr_key][strand_key]
-                struct_genes_in_CHR_and_strand_order[chr_key][strand_key]['start'] = sorted(list_chr_strand, lambda x: x['start'])
-                struct_genes_in_CHR_and_strand_order[chr_key][strand_key]['end'] = sorted(list_chr_strand, lambda x: x['end'])
+                struct_genes_in_CHR_and_strand_order[chr_key][strand_key]['start'] = sorted(list_chr_strand, key=lambda x: x['start'])
+                struct_genes_in_CHR_and_strand_order[chr_key][strand_key]['end'] = sorted(list_chr_strand, key=lambda x: x['end'])
         
         for record in list_records:
             dict_list_start_end: Dict[str, List] = struct_genes_in_CHR_and_strand_order[record['chr']][record['strand']]
