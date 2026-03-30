@@ -20,7 +20,7 @@ class Compare:
         self.proportion_utrs = proportion_utrs
 
 
-    def compare(self, list_transcript: List[Dict], list_content_isoform: List[Dict]) -> Tuple:
+    def compare(self, list_transcript: List[Dict], list_content_isoform: List[Dict], start_limit, end_limit) -> Tuple:
         '''
         - Compare the CDS of a gene with the exons of a transcript to extract the UTRs.
 
@@ -50,24 +50,24 @@ class Compare:
                 # TODO: calculo del error, del 3'UTR y del 5'UTR
                 for exon in list_transcript:
                     nucleotide_no_overlap -= self.instance_metrics.calculate_overlap(cds, exon)
-                    utr_value, n_records, new_min, min_modify_exon = self.instance_metrics.calculate_five_prime_utr(cds, exon, new_min, min_modify_exon)
+                    utr_value, n_records, new_min, min_modify_exon = self.instance_metrics.calculate_five_prime_utr(cds, exon, new_min, min_modify_exon, start_limit)
                     total_utrs += utr_value
                     new_records.extend(n_records)
-                    utr_value, n_records, new_max, max_modify_exon = self.instance_metrics.calculate_three_prime_utr(cds, exon, new_max, max_modify_exon)
+                    utr_value, n_records, new_max, max_modify_exon = self.instance_metrics.calculate_three_prime_utr(cds, exon, new_max, max_modify_exon, end_limit)
                     total_utrs += utr_value
                     new_records.extend(n_records)
             elif cds.get('three', -1) != -1:
                 # TODO: calculo del error y del 3'UTR
                 for exon in list_transcript:
                     nucleotide_no_overlap -= self.instance_metrics.calculate_overlap(cds, exon)
-                    utr_value, n_records, new_max, max_modify_exon = self.instance_metrics.calculate_three_prime_utr(cds, exon, new_max, max_modify_exon)
+                    utr_value, n_records, new_max, max_modify_exon = self.instance_metrics.calculate_three_prime_utr(cds, exon, new_max, max_modify_exon, end_limit)
                     total_utrs += utr_value
                     new_records.extend(n_records)
             elif cds.get('five', -1) != -1:
                 # TODO: calculo del error y del 5'UTR
                 for exon in list_transcript:
                     nucleotide_no_overlap -= self.instance_metrics.calculate_overlap(cds, exon)
-                    utr_value, n_records, new_min, min_modify_exon = self.instance_metrics.calculate_five_prime_utr(cds, exon, new_min, min_modify_exon)
+                    utr_value, n_records, new_min, min_modify_exon = self.instance_metrics.calculate_five_prime_utr(cds, exon, new_min, min_modify_exon, start_limit)
                     total_utrs += utr_value
                     new_records.extend(n_records)
             else:
@@ -84,7 +84,7 @@ class Compare:
         return total, total_utrs, new_records, new_min, new_max, min_modify_exon, max_modify_exon
     
 
-    def compare_gff_gtf(self, records_gene_mRNA: List[Dict], records_transcript, structure_transcript, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five) -> Tuple:
+    def compare_gff_gtf(self, records_gene_mRNA: List[Dict], records_transcript, structure_transcript, structure_gene, limits_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five) -> Tuple:
         '''
         - It seeks to find the best match between a gene and all possible transcripts. 
           Once found, it stores information on the new UTRs and the updates that need to be made, along with their new values.
@@ -97,6 +97,7 @@ class Compare:
         # TODO: add conditions for filter bad transcript that match with the isoform of the gene.
         # The filters are:
         # - Evitar solapamiento entre genes. (seleccionando un mejor transcrito o recortando el transcrito dado) -> Es mejor saber dónde cae cada gen (fin del de antes e inicio del de después)
+        # la condición se debe de aplicar sobre estas 4 variables que devuelve compare "new_min, new_max, min_modify_exon, max_modify_exon". cada gen tiene que traer sus límites.
 
         utrs: List[Dict] = []
         list_idx_three: List[int] = []
@@ -114,6 +115,7 @@ class Compare:
 
         for gene in records_gene_mRNA:
             list_transcript = records_transcript[gene['chr']]
+            start_limit, end_limit = limits_gene[gene['ID']]
             length_gene: int = gene['end'] - gene['start']
             condition: float = self.proportion * length_gene
             condition_utrs: float = self.proportion_utrs * length_gene
@@ -136,7 +138,7 @@ class Compare:
                     no_utr = False
 
                     for key_iso in isoform_cds.keys():
-                        distance, length_utrs, new_records, min_value, max_value, min_modify_exon, max_modify_exon = self.compare(transcript_exon, isoform_cds[key_iso])
+                        distance, length_utrs, new_records, min_value, max_value, min_modify_exon, max_modify_exon = self.compare(transcript_exon, isoform_cds[key_iso], start_limit, end_limit)
                         # TODO: if args.alt añades todos los elementos de new_records.
                         # TODO: Se selecciona el exon que se debe de ampliar para el nuevo 3'UTR pero ese exon no es el que se debe de ampliar. Este caso sucede cuando sobre el gen ya están anotados los UTRs y los exones entremos no corresponden a CDS.
                         if gene_iso_best.get(key_iso, -1) == -1:

@@ -8,6 +8,8 @@ class HandleGFF:
     - The HandleGFF class contains all the functions associated with handling a GFF3.
     '''
 
+    def __init__(self):
+        self.struct_genes_in_CHR_and_strand = defaultdict(lambda: defaultdict(list))
 
     def obtain_gff(self, route: str, encoding: str = 'utf-8') -> pd.DataFrame:
         '''
@@ -19,24 +21,6 @@ class HandleGFF:
         data.columns = ['chr','db','type','start','end','score','strand','phase','attributes']
         data['old_idx'] = data.index
         return data
-    
-
-    # def _extract_info_cds(self, record_cds: Dict, dict_mRNA_cds: Dict, dict_conexions: Dict) -> Dict:
-    #     # necesito la estructura de los cds
-    #     id_mRNA: str = record_cds['Parent']
-    #     id_gene: str = dict_conexions[record_cds['Parent']]['Parent']
-    #     if dict_mRNA_cds.get(id_gene, -1) == -1:
-    #         dict_mRNA_cds[id_gene] = {}
-    #         dict_mRNA_cds[id_gene][id_mRNA] = [record_cds]
-    #     elif dict_mRNA_cds[id_gene].get(id_mRNA, -1) == -1:
-    #         dict_mRNA_cds[id_gene][id_mRNA] = [record_cds]
-    #     else:
-    #         dict_mRNA_cds[id_gene][id_mRNA].append(record_cds)
-    #     return dict_mRNA_cds
-
-    # def _know_five_three_cds_prime(self, records_cds: Dict, min_value: int, max_value: int, min_record: Dict, max_record: Dict) -> Dict:
-    #     # Necesito anotar el mínimo y el máximo (etiquetarlos)
-    #     if min_value 
 
     
     def obtain_gene_w_mRNA(self, dataset: pd.DataFrame, all_genes: bool = False) -> Tuple:
@@ -84,6 +68,7 @@ class HandleGFF:
             elif record['type'] == "gene" and gene_mRNA_record.get(record['ID'], -1) != -1:
                 dict_gen_cds[record['ID']].append(record)
                 records_genes_produce_mRNA.append(record)
+                self.struct_genes_in_CHR_and_strand[record['chr']][record['strand']].append(record)
 
         if not all_genes:
             for record_gene in remove_for_utr:
@@ -155,6 +140,51 @@ class HandleGFF:
 
         return records_genes_produce_mRNA, dict_mRNA_stuff, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five
     
+    def extract_all_limits_gene(self, list_records: List[Dict]) -> Dict:
+        dict_limits_genes = {}
+        struct_genes_in_CHR_and_strand_order = {}
+        for chr_key in self.struct_genes_in_CHR_and_strand.keys():
+            struct_genes_in_CHR_and_strand_order[chr_key] = {}
+            for strand_key in self.struct_genes_in_CHR_and_strand[chr_key].keys():
+                struct_genes_in_CHR_and_strand_order[chr_key][strand_key] = {}
+                list_chr_strand: List[Dict] = self.struct_genes_in_CHR_and_strand[chr_key][strand_key]
+                struct_genes_in_CHR_and_strand_order[chr_key][strand_key]['start'] = sorted(list_chr_strand, lambda x: x['start'])
+                struct_genes_in_CHR_and_strand_order[chr_key][strand_key]['end'] = sorted(list_chr_strand, lambda x: x['end'])
+        
+        for record in list_records:
+            dict_list_start_end: Dict[str, List] = struct_genes_in_CHR_and_strand_order[record['chr']][record['strand']]
+            limit_start, limit_end = self.obtain_limits_gene(record, dict_list_start_end['end'], dict_list_start_end['start'])
+            dict_limits_genes[record['ID']] = (limit_start, limit_end)
+
+        return dict_limits_genes
+
+    
+    def obtain_limits_gene(self, record: Dict, list_end_sort: List[Dict], list_start_sort: List[Dict]):
+        # TODO: list_end_sort y list_start_sort deben de ser listas que contienen el mismo chr y mismo strand para el record dado.
+        start, end = record['start'], record['end']
+        limit_start, limit_end = 0, np.inf
+        j: int = 0
+        while j < len(list_end_sort):
+            record_limit_start: Dict = list_end_sort[j]
+            if record_limit_start['end'] > start:
+                break
+            elif record_limit_start['end'] > limit_start:
+                limit_start = record_limit_start['end']
+            j += 1
+        
+        j: int = 0
+        while j < len(list_start_sort):
+            record_limit_end: Dict = list_start_sort[j]
+            if record_limit_end['start'] < end:
+                continue
+            elif record_limit_end['start'] < limit_end:
+                limit_end = record_limit_end['start']
+            j += 1
+
+        return limit_start+1, limit_end+1
+
+
+
     def change_value(self, data_frame: pd.DataFrame, list_idx: List[int], list_values: List[int], column: str, value_to_ignore: int):
         '''
         - Change the values in the 'column' column of the samples given by the 'list_idx' indices in the 'data_frame' dataframe. 
