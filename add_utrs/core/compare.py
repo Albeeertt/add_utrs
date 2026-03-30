@@ -173,10 +173,10 @@ class Compare:
                 utrs.extend(gene_iso_best[key]['new_records'])
                 list_idx_mRNA.append(dict_idx_mRNA[gene['ID']][key]['old_idx'])
                 list_value_idx_mRNA.append((min(gene_iso_best[key]['min'], dict_idx_mRNA[gene['ID']][key]['start']), max(gene_iso_best[key]['max'], dict_idx_mRNA[gene['ID']][key]['end'])))
-                list_idx_three.append(dict_idx_exon_three[gene['ID']][key])
-                list_value_idx_three.append(gene_iso_best[key]['max_exon']) # TODO: Si coincide el cds con el utr en el mismo exón y el nuevo utr es más corto que el que ya había entonces el nuevo valor del exón no cuadrará.
-                list_idx_five.append(dict_idx_exon_five[gene['ID']][key])
-                list_value_idx_five.append(gene_iso_best[key]['min_exon']) # TODO: Si coincide el cds con el utr en el mismo exón y el nuevo utr es más corto que el que ya había entonces el nuevo valor del exón no cuadrará.
+                list_idx_three.append(dict_idx_exon_three[gene['ID']][key]['old_idx'])
+                list_value_idx_three.append(max(gene_iso_best[key]['max_exon'], dict_idx_exon_three[gene['ID']][key]['end'])) # TODO: Si coincide el cds con el utr en el mismo exón y el nuevo utr es más corto que el que ya había entonces el nuevo valor del exón no cuadrará.
+                list_idx_five.append(dict_idx_exon_five[gene['ID']][key]['old_idx'])
+                list_value_idx_five.append(min(gene_iso_best[key]['min_exon'], dict_idx_exon_five[gene['ID']][key]['start'])) # TODO: Si coincide el cds con el utr en el mismo exón y el nuevo utr es más corto que el que ya había entonces el nuevo valor del exón no cuadrará.
                 if best_min > gene_iso_best[key]['min']:
                     best_min = gene_iso_best[key]['min']
                 if best_max < gene_iso_best[key]['max']:

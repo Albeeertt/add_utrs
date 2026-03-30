@@ -135,8 +135,12 @@ class HandleGFF:
                         
                 min_record['five'] = 'yes'
                 max_record['three'] = 'yes'
-                dict_idx_exon_three[key][key2] = max_record_exon['old_idx']
-                dict_idx_exon_five[key][key2] = min_record_exon['old_idx']
+                dict_idx_exon_three[key][key2] = {} 
+                dict_idx_exon_three[key][key2]['old_idx'] = max_record_exon['old_idx']
+                dict_idx_exon_three[key][key2]['end'] = max_record_exon['end']
+                dict_idx_exon_five[key][key2] = {}
+                dict_idx_exon_five[key][key2]['old_idx'] = min_record_exon['old_idx']
+                dict_idx_exon_five[key][key2]['start'] = min_record_exon['start']
 
         return records_genes_produce_mRNA, dict_mRNA_stuff, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five
     
