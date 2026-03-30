@@ -1,11 +1,11 @@
 # Table of Contents
 
-- [What is ss_utr?](#What is ss_utr?)
-- [Dependencies](#Dependencies)
-- [Items to install](#Items to install)
-- [Arguments](#Arguments)
-- [Example](#Example)
-- [Explanation of the output](#Explanation of the output.)
+- [What is ss_utr?](#what-is-ss_utr)
+- [Dependencies](#dependencies)
+- [Items to install](#items-to-install)
+- [Arguments](#arguments)
+- [Example](#example)
+- [Explanation of the output](#explanation-of-the-output)
 
 
 # 1: What is ss_utr?
@@ -70,19 +70,12 @@ pip install .
 
 | Argument       | Explanation                          |
 |-----------------|--------------------------------------|
-| --gff          | Path to the GFF file.      |
-| --gtf       | Path to the GTF file.            |
-| --out | Output path where the newly generated GFF3 file will be stored.      |
-| --all_genes | Some genes in your annotation (from the GFF3 file provided as an argument) may already have UTRs annotated. If you include this argument when running the tool, UTRs will be calculated for all genes. If you omit it, only genes that don’t yet have annotated UTRs will be processed.      |
-| --stringtie | True if you want to execute stringTie.      |
-| --bams | Path to the folder containing the .bam files. If the StringTie argument is true, this parameter is required.      |
-
-- **--gff**: Path to the GFF file.
-- **--gtf**: Path to the GTF file.
-- **--out**: Output path where the newly generated GFF3 file will be stored.
-- **--all_genes**: Some genes in your annotation (from the GFF3 file provided as an argument) may already have UTRs annotated. If you include this argument when running the tool, UTRs will be calculated for all genes. If you omit it, only genes that don’t yet have annotated UTRs will be processed.
-- **--stringtie**: ...
-- **bams**: ...
+| gff          | Path to the GFF file.      |
+| gtf       | Path to the GTF file.            |
+| out | Output path where the newly generated GFF3 file will be stored.      |
+| all_genes | Some genes in your annotation (from the GFF3 file provided as an argument) may already have UTRs annotated. If you include this argument when running the tool, UTRs will be calculated for all genes. If you omit it, only genes that don’t yet have annotated UTRs will be processed.      |
+| stringtie | True if you want to execute stringTie.      |
+| bams | Path to the folder containing the .bam files. If the StringTie argument is true, this parameter is required.      |
 
 # 5: Example
 
