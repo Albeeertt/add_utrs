@@ -94,6 +94,7 @@ class Compare:
           the new values, 
           and the number of genes for which no UTRs have been added.
         '''
+        # TODO: recorrido sobre la misma strand en list_transcript.
         # TODO: add conditions for filter bad transcript that match with the isoform of the gene.
         # The filters are:
         # - Evitar solapamiento entre genes. (seleccionando un mejor transcrito o recortando el transcrito dado) -> Es mejor saber dónde cae cada gen (fin del de antes e inicio del de después)
