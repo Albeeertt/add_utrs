@@ -70,6 +70,7 @@ class HandleGFF:
                 if obtain_genes_produce_mRNA:
                     records_genes_produce_mRNA.append(record)
                 if idx_gen:
+                    dict_idx_gen[record['ID']] = {}
                     dict_idx_gen[record['ID']]['old_idx'] = record['old_idx']
                     dict_idx_gen[record['ID']]['start'] = record['start']
                     dict_idx_gen[record['ID']]['end'] = record['end']
