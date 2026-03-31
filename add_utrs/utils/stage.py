@@ -14,7 +14,7 @@ class Stage:
         return_func = self.func(*args)
 
         if len(self.outputs) == 1:
-            context[self.outputs] = return_func
+            context[self.outputs[0]] = return_func
         else:
             for key_out, only_return_func in zip(self.outputs, return_func):
                 context[key_out] = only_return_func
