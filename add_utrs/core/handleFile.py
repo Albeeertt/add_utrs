@@ -22,91 +22,68 @@ class HandleGFF:
         data['old_idx'] = data.index
         return data
 
-    
-    def obtain_gene_w_mRNA(self, dataset: pd.DataFrame, all_genes: bool = False) -> Tuple:
-        '''
-        1. Obtiene los genes que poseen mRNA y elimina el resto de genes. Solo elimina los genes que dan lugar a mRNA, el otro tipo de muestras las almacena.
-        Una parte muy importante de esta función es que mantiene la estructura interna del gen que da lugar al mRNA, por tanto, se mantienen clases como exon, CDS, UTR, intrón, etc.
-        '''
-
-        list_records: List[Dict] = dataset.to_dict(orient="records")
-
-        new_list_records = []
+    def add_id_parent(self, list_records: List[Dict], inner_structure: bool = False) -> Tuple:
+        new_list_records: List[Dict] = []
+        ids_records: Dict = {}
+        gene_produce_mRNA: Dict = {}
         for record in list_records:
-            record['ID'] = dict( part.split("=", 1) for part in record['attributes'].split(";") if part != '').get("ID", 'None')  
-            record['Parent'] = dict( part.split("=", 1) for part in record['attributes'].split(";") if part != '').get("Parent", 'None') 
+            record['ID'] = dict( part.split("=", 1) for part in record['attributes'].split(";") if part != '').get("ID", 'None')
+            record['Parent'] = dict( part.split("=", 1) for part in record['attributes'].split(";") if part != '').get("Parent", 'None')
             new_list_records.append(record)
-        list_records = new_list_records
+            if inner_structure:
+                ids_records[record['ID']] = record
+                if record['type'] == 'mRNA':
+                    gene_produce_mRNA[record['Parent']] = record['ID']
 
-        # 1.2 filters the gene that don't produce mRNA.
-        # 1.2.1 Obtain ids and conexions.
-        dict_ids_record: Dict = {}
-        gene_mRNA_record: Dict = {}
+
+        return new_list_records, ids_records, gene_produce_mRNA
+    
+    def obtain_struct_gene(self, list_records: List[Dict], ids_records: Dict[str, Dict], gene_produce_mRNA: Dict[str, str], obtain_genes_produce_mRNA: bool = False, idx_gen: bool = False, idx_mRNA: bool = False) -> Tuple:
+
+        dict_idx_gen: Dict[str, Dict[str, str]]  = {}
+        dict_idx_mRNA: Dict[str, Dict[str, Dict[str, str]]] = {}
+        records_genes_produce_mRNA: List[Dict] = []
+        remove_for_utr: List[Dict] = []
+        dict_cds_isoform: Dict[str, Dict[str, List]] = defaultdict(lambda: defaultdict(list))
+        dict_exon_isoform: Dict[str, Dict[str, List]] = defaultdict(lambda: defaultdict(list))
+
         for record in list_records:
-            dict_ids_record[record['ID']] = record
-            if record['type'] == 'mRNA':
-                gene_mRNA_record[record['Parent']] = record['ID']
-
-
-        dict_gen_cds = defaultdict(list)
-        # 1.2.2 Obtain records belong to mRNA/gene.
-        records_genes_produce_mRNA = []
-        remove_for_utr = []
-        for record in list_records:
-            # Tienen que tener padre, así que se eliminan chr, ri y genes; solo quedan exones, CDS, UTRs, intrones y mRNA o cosas varias. Como se pone la condición de que el padre debe de ser mRNA entonces se busca las subpartes del mRNA.
-            if dict_ids_record.get(record['Parent'], -1) != -1 and dict_ids_record[record['Parent']]['type'] == 'mRNA':
-                if record['type'] == 'CDS' or record['type'] == 'exon':
-                    gen_record = dict_ids_record[dict_ids_record[record['Parent']]['Parent']]
-                    dict_gen_cds[gen_record['ID']].append(record)
+            if ids_records.get(record['Parent'], -1) != -1 and ids_records[record['Parent']]['type'] == 'mRNA':
+                if record['type'] == 'CDS':
+                    mRNA_record = ids_records[record['Parent']]
+                    dict_cds_isoform[mRNA_record['Parent']][mRNA_record['ID']].append(record)
+                elif record['type'] == 'exon':
+                    mRNA_record = ids_records[record['Parent']]
+                    dict_exon_isoform[mRNA_record['Parent']][mRNA_record['ID']].append(record)
                 elif (record['type'] == 'three_prime_UTR' or record['type'] == 'five_prime_UTR'):
-                    gen_record = dict_ids_record[dict_ids_record[record['Parent']]['Parent']]
+                    gen_record = ids_records[ids_records[record['Parent']]['Parent']]
                     if gen_record not in remove_for_utr:
                         remove_for_utr.append(gen_record)
-            elif record['type'] == 'mRNA':
-                dict_gen_cds[dict_ids_record[record['Parent']]['ID']].append(record)
-            # Si es gen y produce mRNA también lo metemos.
-            elif record['type'] == "gene" and gene_mRNA_record.get(record['ID'], -1) != -1:
-                dict_gen_cds[record['ID']].append(record)
-                records_genes_produce_mRNA.append(record)
+            elif record['type'] == 'mRNA' and idx_mRNA:
+                dict_idx_mRNA[record['Parent']] = {}
+                dict_idx_mRNA[record['Parent']][record['ID']] = {}
+                dict_idx_mRNA[record['Parent']][record['ID']]['old_idx'] = record['old_idx']
+                dict_idx_mRNA[record['Parent']][record['ID']]['start'] = record['start']
+                dict_idx_mRNA[record['Parent']][record['ID']]['end'] = record['end']
+            elif record['type'] == "gene" and gene_produce_mRNA.get(record['ID'], -1) != -1:
                 self.struct_genes_in_CHR_and_strand[record['chr']][record['strand']].append(record)
+                if obtain_genes_produce_mRNA:
+                    records_genes_produce_mRNA.append(record)
+                if idx_gen:
+                    dict_idx_gen[record['ID']]['old_idx'] = record['old_idx']
+                    dict_idx_gen[record['ID']]['start'] = record['start']
+                    dict_idx_gen[record['ID']]['end'] = record['end']
 
-        if not all_genes:
-            for record_gene in remove_for_utr:
-                records_genes_produce_mRNA.remove(record_gene)
-                del dict_gen_cds[record_gene['ID']]
-
-        dict_mRNA_stuff = {}
-        dict_idx_gen = {}
-        dict_idx_mRNA = {}
-        for key in dict_gen_cds.keys():
-            dict_mRNA_stuff[key] = {}
-            dict_idx_mRNA[key] = {}
-            list_stuff = dict_gen_cds[key]
-            for record in list_stuff:
-                if record['type'] == 'CDS' or record['type'] == 'exon':
-                    parent = dict_ids_record[record['Parent']]['ID']
-                    if dict_mRNA_stuff[key].get(parent, -1) == -1:
-                        dict_mRNA_stuff[key][parent] = [record]
-                    else:
-                        dict_mRNA_stuff[key][parent].append(record)
-                elif record['type'] == 'gene':
-                    dict_idx_gen[key] = {}
-                    dict_idx_gen[key]['old_idx'] = record['old_idx']
-                    dict_idx_gen[key]['start'] = record['start']
-                    dict_idx_gen[key]['end'] = record['end']
-                elif record['type'] == 'mRNA':
-                    dict_idx_mRNA[key][record['ID']] = {}
-                    dict_idx_mRNA[key][record['ID']]['old_idx'] = record['old_idx']
-                    dict_idx_mRNA[key][record['ID']]['start'] = record['start']
-                    dict_idx_mRNA[key][record['ID']]['end'] = record['end']
-
+        return dict_cds_isoform, dict_exon_isoform, records_genes_produce_mRNA, remove_for_utr, dict_idx_gen, dict_idx_mRNA
+            
+    def know_utrs(self, dict_cds_isoform: Dict, dict_exon_isoform: Dict):
 
         dict_idx_exon_three = {}
         dict_idx_exon_five = {}
-        for key in dict_mRNA_stuff.keys():
+        for key in dict_cds_isoform.keys():
             dict_idx_exon_three[key] = {}
             dict_idx_exon_five[key] = {}
-            for key2 in dict_mRNA_stuff[key].keys():
+            for key2 in dict_cds_isoform[key].keys():
                 min = np.inf
                 min_record = None
                 max = 0
@@ -115,23 +92,20 @@ class HandleGFF:
                 min_record_exon = None
                 max_exon = 0
                 max_record_exon = None
-                for record in dict_mRNA_stuff[key][key2]:
-                    if record['type'] == 'CDS':
-                        if record['start'] <= min:
-                            min = record['start']
-                            min_record = record
-                        if record['end'] >= max:
-                            max = record['end']
-                            max_record = record
-                for record in dict_mRNA_stuff[key][key2][:]:
-                    if record['type'] == 'exon':
-                        if record['start'] <= min_exon and min_record['start'] >= record['start'] and min_record['end'] <= record['end']:
-                            min_exon = record['start']
-                            min_record_exon = record.copy()
-                        if record['end'] >= max_exon and max_record['start'] >= record['start'] and max_record['end'] <= record['end']:
-                            max_exon = record['end']
-                            max_record_exon = record.copy()
-                        dict_mRNA_stuff[key][key2].remove(record)
+                for record in dict_cds_isoform[key][key2]:
+                    if record['start'] <= min:
+                        min = record['start']
+                        min_record = record
+                    if record['end'] >= max:
+                        max = record['end']
+                        max_record = record
+                for record in dict_exon_isoform[key][key2]:
+                    if record['start'] <= min_exon and min_record['start'] >= record['start'] and min_record['end'] <= record['end']:
+                        min_exon = record['start']
+                        min_record_exon = record.copy()
+                    if record['end'] >= max_exon and max_record['start'] >= record['start'] and max_record['end'] <= record['end']:
+                        max_exon = record['end']
+                        max_record_exon = record.copy()
                         
                 min_record['five'] = 'yes'
                 max_record['three'] = 'yes'
@@ -142,7 +116,33 @@ class HandleGFF:
                 dict_idx_exon_five[key][key2]['old_idx'] = min_record_exon['old_idx']
                 dict_idx_exon_five[key][key2]['start'] = min_record_exon['start']
 
-        return records_genes_produce_mRNA, dict_mRNA_stuff, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five
+        return dict_idx_exon_three, dict_idx_exon_five
+
+
+    def obtain_gene_w_mRNA(self, dataset: pd.DataFrame, all_genes: bool = False) -> Tuple:
+        '''
+        1. Obtiene los genes que poseen mRNA y elimina el resto de genes. Solo elimina los genes que dan lugar a mRNA, el otro tipo de muestras las almacena.
+        Una parte muy importante de esta función es que mantiene la estructura interna del gen que da lugar al mRNA, por tanto, se mantienen clases como exon, CDS, UTR, intrón, etc.
+        '''
+
+        list_records: List[Dict] = dataset.to_dict(orient="records")
+
+        list_records, dict_ids_record, gene_mRNA_record = self.add_id_parent(list_records, inner_structure=True)
+
+        dict_cds_isoform, dict_exon_isoform, records_genes_produce_mRNA, remove_for_utr, dict_idx_gen, dict_idx_mRNA = self.obtain_struct_gene(list_records, dict_ids_record, gene_mRNA_record, obtain_genes_produce_mRNA=True, idx_gen=True, idx_mRNA=True)
+
+        if not all_genes:
+            for record_gene in remove_for_utr:
+                records_genes_produce_mRNA.remove(record_gene)
+                del dict_cds_isoform[record_gene['ID']]
+                del dict_exon_isoform[record_gene['ID']]
+                del dict_idx_gen[record_gene['ID']]
+                del dict_idx_mRNA[record_gene['ID']]
+
+        dict_idx_exon_three, dict_idx_exon_five = self.know_utrs(dict_cds_isoform, dict_exon_isoform)
+
+
+        return records_genes_produce_mRNA, dict_cds_isoform, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five
     
     def extract_all_limits_gene(self, list_records: List[Dict]) -> Dict:
         dict_limits_genes = {}
