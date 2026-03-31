@@ -26,7 +26,7 @@ def obtain_arguments():
     return parser.parse_args()
 
 def execute_main_program():
-
+# all ok.
     '''
     - This function contains the program flow, where all calls to the different functions are made. The main steps performed are:
     1. Read the arguments.
