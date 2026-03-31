@@ -18,15 +18,17 @@ def obtain_arguments():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--gff', type=str, required=True, help="Path to GFF file.")
-    parser.add_argument('--gtf', type=str, required=False, help="Path to stringtie output.")
+    parser.add_argument('--gtf', type=str, help="Path to stringtie output.")
     parser.add_argument('--stringtie', action="store_true", help="Execute stringtie.")
-    parser.add_argument('--bams', type=str, required=False, help="Path to bams dir.")
+    parser.add_argument('--bams', type=str, help="Path to bams dir.")
     parser.add_argument('--out', type=str, required=True, help='Path to output directory')
-    parser.add_argument('--all_genes', action="store_true", help="")
+    parser.add_argument('--all_genes', action="store_true", help="Some genes in your annotation (from the GFF3 file provided as an argument) may already have UTRs annotated. If you include this argument when running the tool, UTRs will be calculated for all genes. If you omit it, only genes that don’t yet have annotated UTRs will be processed.")
+    parser.add_argument('--length_overlap', type=float, default=0.8, help="")
+    parser.add_argument('--length_utrs', type=float, default=0.5, help="")
+    parser.add_argument('--overlap_genes', action='store_true', help="")
     return parser.parse_args()
 
 def execute_main_program():
-# all ok.
     '''
     - This function contains the program flow, where all calls to the different functions are made. The main steps performed are:
     1. Read the arguments.
@@ -63,7 +65,7 @@ def execute_main_program():
 
     instance_handle_gff = HandleGFF()
     instance_handle_gtf = HandleGTF()
-    instance_compare = Compare()
+    instance_compare = Compare(args.length_overlap, args.length_utrs, args.overlap_genes)
 
     print("Reading GFF file...")
     df_gff: pd.DataFrame = instance_handle_gff.obtain_gff(gff)
