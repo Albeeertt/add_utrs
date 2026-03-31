@@ -60,7 +60,8 @@ class HandleGFF:
                     if gen_record not in remove_for_utr:
                         remove_for_utr.append(gen_record)
             elif record['type'] == 'mRNA' and idx_mRNA:
-                dict_idx_mRNA[record['Parent']] = {}
+                if dict_idx_mRNA.get(record['Parent'], -1) == -1:
+                    dict_idx_mRNA[record['Parent']] = {}
                 dict_idx_mRNA[record['Parent']][record['ID']] = {}
                 dict_idx_mRNA[record['Parent']][record['ID']]['old_idx'] = record['old_idx']
                 dict_idx_mRNA[record['Parent']][record['ID']]['start'] = record['start']
