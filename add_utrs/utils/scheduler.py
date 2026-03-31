@@ -16,7 +16,7 @@ class Scheduler:
         return_dict = mgr.dict()
         procs = []
         for idx, chunk in enumerate(self._chunks):
-            worker = Worker(self._stages, *chunk, idx, return_dict)
+            worker = Worker(self._stages, chunk, idx, return_dict)
             procs.append(worker)
 
         for p in procs: p.join()

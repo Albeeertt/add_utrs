@@ -109,9 +109,6 @@ def execute_main_program():
             result_chr.extend(result_chunks)
         print(len(result_chr))
         print("fiiiiin")
-            
-        
-
 
 
     
