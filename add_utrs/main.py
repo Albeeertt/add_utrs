@@ -5,10 +5,14 @@ import subprocess
 import os
 import pandas as pd
 import time
+from functools import partial
 
 from add_utrs.core.handleFile import HandleGFF, HandleGTF
 from add_utrs.core.compare import Compare
 from add_utrs.utils.postProcess import ProcessTranscript
+from add_utrs.utils.split import split_into_chunks
+from add_utrs.utils.stage import Stage
+from add_utrs.utils.scheduler import Scheduler
 
 def obtain_arguments():
     '''
@@ -26,6 +30,7 @@ def obtain_arguments():
     parser.add_argument('--length_overlap', type=float, default=0.8, help="")
     parser.add_argument('--length_utrs', type=float, default=0.5, help="")
     parser.add_argument('--overlap_genes', action='store_true', help="")
+    parser.add_argument('--n_cpus', type=int, default=1, help="")
     return parser.parse_args()
 
 def execute_main_program():
@@ -72,13 +77,49 @@ def execute_main_program():
     print("Reading GTF file...")
     df_gtf: pd.DataFrame = instance_handle_gtf.obtain_gtf(gtf)
 
-    df_gff_sorted: pd.DataFrame = df_gff.sort_values(by=['chr', 'start'])
-    df_gtf: pd.DataFrame = df_gtf.sort_values(by=['chr', 'start'])
+    # TODO: paralelizar desde aquí, para ello, es necesario dividir tanto el gff como el gtf en chrs.
+    # if ... (u want parallelize)
+    if args.n_cpus > 1:
+        list_chunks: List[Tuple[pd.DataFrame, pd.DataFrame]] = split_into_chunks(df_gtf, df_gff)
+        stage1 = Stage(
+            func=instance_handle_gtf.extract_info_gtf,
+            inputs=['df_gtf'],
+            outputs=['records_transcript', 'structure_transcript']
+        )
+        stage2 = Stage(
+            func=partial(instance_handle_gff.obtain_gene_w_mRNA, all_genes=args.all_genes),
+            inputs=['df_gff'],
+            outputs=['records_gene_mRNA', 'structure_gene', 'dict_idx_gen', 'dict_idx_mRNA', 'dict_idx_exon_three', 'dict_idx_exon_five']
+        )
+        stage3 = Stage(
+            func=instance_handle_gff.extract_all_limits_gene,
+            inputs=['records_gene_mRNA'],
+            outputs=['dict_limits_genes']
+        )
+        stage4 = Stage(
+            func=instance_compare.compare_gff_gtf,
+            inputs=['records_gene_mRNA', 'records_transcript', 'structure_transcript', 'structure_gene', 'dict_limits_genes', 'dict_idx_gen', 'dict_idx_mRNA', 'dict_idx_exon_three', 'dict_idx_exon_five'],
+            outputs=['utrs', 'list_idx_gene', 'list_value_idx_gene', 'list_idx_mRNA', 'list_value_idx_mRNA', 'list_idx_five', 'list_value_idx_five', 'list_idx_three', 'list_value_idx_three', 'n_gen_without_utrs']
+        )
+        result_chr = []
+        for i in range(0, len(list_chunks), args.n_cpus):
+            chr_to_process = list_chunks[i:i+args.n_cpus]
+            scheduler = Scheduler([stage1, stage2, stage3, stage4], chr_to_process)
+            result_chunks = scheduler.run()
+            result_chr.extend(result_chunks)
+        print(len(result_chr))
+        print("fiiiiin")
+            
+        
+
+
+
+    
 
     print("Extracting information from the GTF...")
     records_transcript, structure_transcript = instance_handle_gtf.extract_info_gtf(df_gtf)
     print("Extracting information from the GFF...")
-    records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = instance_handle_gff.obtain_gene_w_mRNA(df_gff_sorted, args.all_genes)
+    records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = instance_handle_gff.obtain_gene_w_mRNA(df_gff, args.all_genes)
     dict_limits_genes = instance_handle_gff.extract_all_limits_gene(records_gene_mRNA)
     print("Obtaining UTRs...")
     utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs = instance_compare.compare_gff_gtf(records_gene_mRNA, records_transcript, structure_transcript, structure_gene, dict_limits_genes, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five)

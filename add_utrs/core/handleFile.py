@@ -143,7 +143,6 @@ class HandleGFF:
 
         dict_idx_exon_three, dict_idx_exon_five = self.know_utrs(dict_cds_isoform, dict_exon_isoform)
 
-
         return records_genes_produce_mRNA, dict_cds_isoform, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five
     
     def extract_all_limits_gene(self, list_records: List[Dict]) -> Dict:
