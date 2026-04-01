@@ -81,7 +81,7 @@ def execute_main_program():
     # TODO: paralelizar desde aquí, para ello, es necesario dividir tanto el gff como el gtf en chrs.
     # if ... (u want parallelize)
     if args.n_cpus > 1:
-        utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs = parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_compare, df_gff, df_gtf, args)
+        records_gene_mRNA, utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs = parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_compare, df_gff, df_gtf, args)
     else:
         records_transcript, structure_transcript = instance_handle_gtf.extract_info_gtf(df_gtf)
         records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = instance_handle_gff.obtain_gene_w_mRNA(df_gff, args.all_genes)

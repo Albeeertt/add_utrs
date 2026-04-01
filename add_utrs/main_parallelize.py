@@ -36,8 +36,6 @@ def parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_com
         scheduler = Scheduler([stage1, stage2, stage3, stage4], chr_to_process)
         result_chunks = scheduler.run()
         result_chr.extend(result_chunks)
-    print(len(result_chr))
-    print("fiiiiin")
     utrs = []
     list_idx_gene = []
     list_value_idx_gene = []
@@ -48,6 +46,7 @@ def parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_com
     list_idx_three = []
     list_value_idx_three = []
     n_gen_without_utrs = 0
+    records_gene_mRNA = []
     for result_cpu in result_chr:
         utrs.extend(result_cpu['utrs'])
         list_idx_gene.extend(result_cpu['list_idx_gene'])
@@ -58,6 +57,8 @@ def parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_com
         list_value_idx_five.extend(result_cpu['list_value_idx_five'])
         list_idx_three.extend(result_cpu['list_idx_three'])
         list_value_idx_three.extend(result_cpu['list_value_idx_three'])
+        records_gene_mRNA.extend(result_cpu['records_gene_mRNA'])
         n_gen_without_utrs += result_cpu['n_gen_without_utrs']
+        
 
-    return utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs
+    return records_gene_mRNA, utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs
