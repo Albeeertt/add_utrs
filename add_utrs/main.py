@@ -97,6 +97,7 @@ def execute_main_program():
 
     df_gff_w_utrs, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
 
+    print(df_gff_w_utrs.shape)
     instance_handle_gff.write_gff(df_gff_w_utrs, route_gff3)
 
     print("---")

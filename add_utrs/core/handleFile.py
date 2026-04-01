@@ -231,7 +231,7 @@ class HandleGFF:
         df_gff = pd.DataFrame(list_df_gff)
         if clean_columns:
             del df_gff['old_idx']
-        print(df_gff.shape())
+        print(df_gff.shape)
         return df_gff, n_five, n_three
         
     def write_gff(self, gff: pd.DataFrame, route: str):
