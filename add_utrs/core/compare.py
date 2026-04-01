@@ -3,6 +3,7 @@ from typing import List, Dict, Tuple
 
 import numpy as np
 from collections import defaultdict
+from operator import itemgetter
 
 from .metrics import Metrics
 
@@ -32,8 +33,8 @@ class Compare:
            and the new minimum and maximum size for the exon of the first and last CDS.
         '''
 
-        list_transcript = sorted(list_transcript, key= lambda x: x['start'])
-        list_content_isoform = sorted(list_content_isoform, key= lambda x: x['start'])
+        list_transcript = sorted(list_transcript, key= itemgetter('start'))
+        list_content_isoform = sorted(list_content_isoform, key= itemgetter('start'))
 
         total = 0
         total_utrs = 0
@@ -114,7 +115,7 @@ class Compare:
         for key_chr in records_transcript.keys():
             for key_strand in records_transcript[key_chr].keys():
                 list_transcript_chr_strand = records_transcript[key_chr][key_strand]
-                records_transcript[key_chr][key_strand] = sorted(list_transcript_chr_strand, key=lambda x: x['start'])
+                records_transcript[key_chr][key_strand] = sorted(list_transcript_chr_strand, key=itemgetter('start'))
 
         for gene in records_gene_mRNA:
             list_transcript = records_transcript[gene['chr']][gene['strand']]
