@@ -108,5 +108,5 @@ def execute_main_program():
 
     print(".......................................................................................")
 
-    instance_ProcessTranscript = ProcessTranscript(instance_compare.get_overlap_transcript_over_all_genes())
-    instance_ProcessTranscript.valid_genes(write_file=True,route=route_overlap)
+    # instance_ProcessTranscript = ProcessTranscript(instance_compare.get_overlap_transcript_over_all_genes())
+    # instance_ProcessTranscript.valid_genes(write_file=True,route=route_overlap)
