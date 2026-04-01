@@ -2,6 +2,10 @@ import pandas as pd
 from typing import Dict, List, Tuple
 import numpy as np
 from operator import itemgetter
+from collections import defaultdict
+
+def nested_dict():
+    return defaultdict(list)
 
 class HandleGFF:
     '''
@@ -9,7 +13,7 @@ class HandleGFF:
     '''
 
     def __init__(self):
-        self.struct_genes_in_CHR_and_strand = {} # defaultdict(lambda: defaultdict(list))
+        self.struct_genes_in_CHR_and_strand = defaultdict(nested_dict)
 
     def obtain_gff(self, route: str, encoding: str = 'utf-8') -> pd.DataFrame:
         '''
@@ -44,24 +48,16 @@ class HandleGFF:
         dict_idx_mRNA: Dict[str, Dict[str, Dict[str, str]]] = {}
         records_genes_produce_mRNA: List[Dict] = []
         remove_for_utr: List[Dict] = []
-        dict_cds_isoform: Dict[str, Dict[str, List]] = {} # defaultdict(lambda: defaultdict(list))
-        dict_exon_isoform: Dict[str, Dict[str, List]] = {} # defaultdict(lambda: defaultdict(list))
+        dict_cds_isoform: Dict[str, Dict[str, List]] = defaultdict(nested_dict)
+        dict_exon_isoform: Dict[str, Dict[str, List]] = defaultdict(nested_dict)
 
         for record in list_records:
             if ids_records.get(record['Parent'], -1) != -1 and ids_records[record['Parent']]['type'] == 'mRNA':
                 if record['type'] == 'CDS':
                     mRNA_record = ids_records[record['Parent']]
-                    if dict_cds_isoform.get(mRNA_record['Parent'], -1) == -1:
-                        dict_cds_isoform[mRNA_record['Parent']] = {}
-                    if dict_cds_isoform[mRNA_record['Parent']].get(mRNA_record['ID'], -1) == -1:
-                        dict_cds_isoform[mRNA_record['Parent']][mRNA_record['ID']] = []
                     dict_cds_isoform[mRNA_record['Parent']][mRNA_record['ID']].append(record)
                 elif record['type'] == 'exon':
                     mRNA_record = ids_records[record['Parent']]
-                    if dict_exon_isoform.get(mRNA_record['Parent'], -1) == -1:
-                        dict_exon_isoform[mRNA_record['Parent']] = {}
-                    if dict_exon_isoform[mRNA_record['Parent']].get(mRNA_record['ID'], -1) == -1:
-                        dict_exon_isoform[mRNA_record['Parent']][mRNA_record['ID']] = []
                     dict_exon_isoform[mRNA_record['Parent']][mRNA_record['ID']].append(record)
                 elif (record['type'] == 'three_prime_UTR' or record['type'] == 'five_prime_UTR'):
                     gen_record = ids_records[ids_records[record['Parent']]['Parent']]
@@ -75,10 +71,6 @@ class HandleGFF:
                 dict_idx_mRNA[record['Parent']][record['ID']]['start'] = record['start']
                 dict_idx_mRNA[record['Parent']][record['ID']]['end'] = record['end']
             elif record['type'] == "gene" and gene_produce_mRNA.get(record['ID'], -1) != -1:
-                if self.struct_genes_in_CHR_and_strand.get(record['chr'], -1) == -1:
-                    self.struct_genes_in_CHR_and_strand[record['chr']] = {}
-                if self.struct_genes_in_CHR_and_strand[record['chr']].get(record['strand'], -1) == -1:
-                    self.struct_genes_in_CHR_and_strand[record['chr']][record['strand']] = []
                 self.struct_genes_in_CHR_and_strand[record['chr']][record['strand']].append(record)
                 if obtain_genes_produce_mRNA:
                     records_genes_produce_mRNA.append(record)
@@ -281,7 +273,7 @@ class HandleGTF:
         '''
 
         list_gtf: List[Dict] = gtf.to_dict(orient='records')
-        dict_gtf: Dict[str, Dict] = {} # defaultdict( lambda: defaultdict(list))
+        dict_gtf: Dict[str, Dict] = defaultdict(nested_dict)
         dict_transcript_exon: Dict[str, Dict[str, List]] = {} # gen, isoforma, exones.
 
 
@@ -292,10 +284,6 @@ class HandleGTF:
                 id_transcript: str = [ attribute.strip().split(' ')[1] for attribute in record['attributes'].split(';') if attribute.strip().split(' ')[0] == 'transcript_id'][0]
                 record['ID_gene'] = id_record.replace('"', '')
                 record['ID_transcript'] = id_transcript.replace('"', '')
-                if dict_gtf.get(record['chr'], -1) == -1:
-                    dict_gtf[record['chr']] = {}
-                if dict_gtf[record['chr']].get(record['strand'], -1) == -1:
-                    dict_gtf[record['chr']][record['strand']] = []
                 dict_gtf[record['chr']][record['strand']].append(record)
                 if self.transcripts.get(id_record, -1) != -1:
                     self.transcripts[id_record][id_transcript] = record

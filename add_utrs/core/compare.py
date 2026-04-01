@@ -119,9 +119,8 @@ class Compare:
 
         for gene in records_gene_mRNA:
             if records_transcript[gene['chr']].get(gene['strand'], -1) == -1:
-                print("queeeeeeeeeeeee")
-                print(list(records_transcript[gene['chr']].keys()))
-
+                continue
+                
             list_transcript = records_transcript[gene['chr']][gene['strand']]
             if self.overlap_genes:
                 start_limit, end_limit = limits_gene[gene['ID']]
