@@ -4,6 +4,7 @@ import subprocess
 import os
 import pandas as pd
 import time
+import resource
 
 
 from add_utrs.core.handleFile import HandleGFF, HandleGTF
@@ -28,6 +29,7 @@ def obtain_arguments():
     parser.add_argument('--length_utrs', type=float, default=0.5, help="")
     parser.add_argument('--overlap_genes', action='store_true', help="")
     parser.add_argument('--n_cpus', type=int, default=1, help="")
+    parser.add_argument('--mem', type=int, default=500, help="")
     return parser.parse_args()
 
 def execute_main_program():
@@ -45,11 +47,15 @@ def execute_main_program():
     The main dependencies are: HandleGFF, HandleGTF, Compare and ProcessTranscript.
     '''
 
+
     OUTPUT_GFF3: str = 'output.gff3'
     OUTPUT_OVERLAP: str = 'overlap.json'
 
     print("Reading arguments...")
     args = obtain_arguments()
+
+    max_heap_size = args.mem * 1024 * 1024
+    resource.setrlimit(resource.RLIMIT_AS, (max_heap_size, max_heap_size))
 
     gff: str = args.gff
     gtf: str = args.gtf
@@ -69,9 +75,7 @@ def execute_main_program():
     instance_handle_gtf = HandleGTF()
     instance_compare = Compare(args.length_overlap, args.length_utrs, args.overlap_genes)
 
-    print("Reading GFF file...")
     df_gff: pd.DataFrame = instance_handle_gff.obtain_gff(gff)
-    print("Reading GTF file...")
     df_gtf: pd.DataFrame = instance_handle_gtf.obtain_gtf(gtf)
 
     # TODO: paralelizar desde aquí, para ello, es necesario dividir tanto el gff como el gtf en chrs.
@@ -79,12 +83,9 @@ def execute_main_program():
     if args.n_cpus > 1:
         utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs = parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_compare, df_gff, df_gtf, args)
     else:
-        print("Extracting information from the GTF...")
         records_transcript, structure_transcript = instance_handle_gtf.extract_info_gtf(df_gtf)
-        print("Extracting information from the GFF...")
         records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = instance_handle_gff.obtain_gene_w_mRNA(df_gff, args.all_genes)
         dict_limits_genes = instance_handle_gff.extract_all_limits_gene(records_gene_mRNA)
-        print("Obtaining UTRs...")
         utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs = instance_compare.compare_gff_gtf(records_gene_mRNA, records_transcript, structure_transcript, structure_gene, dict_limits_genes, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five)
     
     print("Changing the sample values...")
@@ -97,10 +98,8 @@ def execute_main_program():
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_three, list_value_idx_three, 'end', 0)
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_five, list_value_idx_five, 'start', 0)
 
-    print("Adding the new UTRs...")
     df_gff_w_utrs, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
 
-    print("Writing the new GFF3...")
     instance_handle_gff.write_gff(df_gff_w_utrs, route_gff3)
 
     print("---")

@@ -96,8 +96,7 @@ class Compare:
           the new values, 
           and the number of genes for which no UTRs have been added.
         '''
-        # TODO: recorrido sobre la misma strand en list_transcript.
-
+        print("Obtaining UTRs...")
         utrs: List[Dict] = []
         list_idx_three: List[int] = []
         list_idx_five: List[int] = []

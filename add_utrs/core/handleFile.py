@@ -21,6 +21,7 @@ class HandleGFF:
           Additionally, add the old_idx column, indicating the location of each sample 
           in the original dataframe (for future modifications).
         '''
+        print("Reading GFF file...")
         data = pd.read_csv(route, comment='#', sep='\t', header=None, encoding= encoding)
         data.columns = ['chr','db','type','start','end','score','strand','phase','attributes']
         data['old_idx'] = data.index
@@ -130,7 +131,7 @@ class HandleGFF:
         1. Obtiene los genes que poseen mRNA y elimina el resto de genes. Solo elimina los genes que dan lugar a mRNA, el otro tipo de muestras las almacena.
         Una parte muy importante de esta función es que mantiene la estructura interna del gen que da lugar al mRNA, por tanto, se mantienen clases como exon, CDS, UTR, intrón, etc.
         '''
-
+        print("Extracting information from the GFF...")
         list_records: List[Dict] = dataset.to_dict(orient="records")
 
         list_records, dict_ids_record, gene_mRNA_record = self.add_id_parent(list_records, inner_structure=True)
@@ -210,6 +211,7 @@ class HandleGFF:
         - Add the utrs from the 'utrs' list to the 'gff' dataframe. 
           If 'clean_columns' is true, the dataframe is formatted to remove extra columns and be in GFF3 format.
         '''
+        print("Adding the new UTRs...")
         list_df_gff = gff.to_dict(orient='records')
         n_five: int = 0
         n_three: int = 0
@@ -238,6 +240,7 @@ class HandleGFF:
         '''
         - Write the 'gff' dataframe to the 'route' in GFF3 format.
         '''
+        print("Writing the new GFF3...")
         with open(route, "w") as f:
             f.write("##gff-version 3\n")
             for _, row in gff.iterrows():
@@ -259,6 +262,7 @@ class HandleGTF:
           Additionally, add the old_idx column, indicating the location of each sample 
           in the original dataframe (for future modifications).
         '''
+        print("Reading GTF file...")
         data = pd.read_csv(route, comment='#', sep='\t', header=None, encoding= encoding)
         data.columns = ['chr','db','type','start','end','score','strand','phase','attributes']
         data['old_idx'] = data.index
@@ -271,7 +275,7 @@ class HandleGTF:
           First, group the transcripts for each chromosome into a single dictionary entry. 
           Second, group the exons associated with each transcript.
         '''
-
+        print("Extracting information from the GTF...")
         list_gtf: List[Dict] = gtf.to_dict(orient='records')
         dict_gtf: Dict[str, Dict] = defaultdict(nested_dict)
         dict_transcript_exon: Dict[str, Dict[str, List]] = {} # gen, isoforma, exones.
