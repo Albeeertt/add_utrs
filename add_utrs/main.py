@@ -94,7 +94,6 @@ def execute_main_program():
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_three, list_value_idx_three, 'end', 0)
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_five, list_value_idx_five, 'start', 0)
 
-    print(len(utrs))
 
     df_gff_w_utrs, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
 
