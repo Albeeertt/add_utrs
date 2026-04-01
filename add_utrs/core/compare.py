@@ -118,6 +118,9 @@ class Compare:
                 records_transcript[key_chr][key_strand] = sorted(list_transcript_chr_strand, key=itemgetter('start'))
 
         for gene in records_gene_mRNA:
+            print("--------------------")
+            print(list(records_transcript[gene['chr']].keys()))
+            print("--------------------")
             list_transcript = records_transcript[gene['chr']][gene['strand']]
             if self.overlap_genes:
                 start_limit, end_limit = limits_gene[gene['ID']]
