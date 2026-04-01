@@ -77,8 +77,6 @@ def execute_main_program():
     df_gff: pd.DataFrame = instance_handle_gff.obtain_gff(gff)
     df_gtf: pd.DataFrame = instance_handle_gtf.obtain_gtf(gtf)
 
-    # TODO: paralelizar desde aquí, para ello, es necesario dividir tanto el gff como el gtf en chrs.
-    # if ... (u want parallelize)
     if args.n_cpus > 1:
         records_gene_mRNA, utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs = parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_compare, df_gff, df_gtf, args)
     else:
@@ -95,6 +93,8 @@ def execute_main_program():
 
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_three, list_value_idx_three, 'end', 0)
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_five, list_value_idx_five, 'start', 0)
+
+    print(len(utrs))
 
     df_gff_w_utrs, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
 
