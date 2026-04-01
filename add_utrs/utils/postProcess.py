@@ -5,9 +5,8 @@ import json
 
 class ProcessTranscript:
 
-    def __init__(self, transcript_overlaps_genes: Dict, transcripts: Dict):
+    def __init__(self, transcript_overlaps_genes: Dict):
         self.transcript_overlaps_genes = transcript_overlaps_genes
-        self.transcripts = transcripts
     
     def valid_genes(self, write_file: bool = False, route: str = None):
         '''

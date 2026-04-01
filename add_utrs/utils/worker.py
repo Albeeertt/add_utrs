@@ -12,6 +12,7 @@ class Worker(mp.Process):
 
     def run(self):
         context = self._chunk
+        print("Procesando cromosoma: ",context['chr'])
         for stage in self._stages:
             stage(context)
         self._dict_results[self._idx] = context

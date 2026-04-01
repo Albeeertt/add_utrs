@@ -51,7 +51,6 @@ def execute_main_program():
     OUTPUT_GFF3: str = 'output.gff3'
     OUTPUT_OVERLAP: str = 'overlap.json'
 
-    print("Reading arguments...")
     args = obtain_arguments()
 
     max_heap_size = args.mem * 1024 * 1024
@@ -88,7 +87,6 @@ def execute_main_program():
         dict_limits_genes = instance_handle_gff.extract_all_limits_gene(records_gene_mRNA)
         utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs = instance_compare.compare_gff_gtf(records_gene_mRNA, records_transcript, structure_transcript, structure_gene, dict_limits_genes, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five)
     
-    print("Changing the sample values...")
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_gene, [v[0] for v in list_value_idx_gene], 'start', 0)
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_gene, [v[1] for v in list_value_idx_gene], 'end', 0)
 
@@ -110,5 +108,5 @@ def execute_main_program():
 
     print(".......................................................................................")
 
-    instance_ProcessTranscript = ProcessTranscript(instance_compare.get_overlap_transcript_over_all_genes(), records_transcript)
+    instance_ProcessTranscript = ProcessTranscript(instance_compare.get_overlap_transcript_over_all_genes())
     instance_ProcessTranscript.valid_genes(write_file=True,route=route_overlap)
