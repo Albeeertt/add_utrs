@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import time
 import resource
+from operator import itemgetter
 
 
 from add_utrs.core.handleFile import HandleGFF, HandleGTF
@@ -94,9 +95,8 @@ def execute_main_program():
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_three, list_value_idx_three, 'end', 0)
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_five, list_value_idx_five, 'start', 0)
 
-    print("..........")
-    print(utrs[0])
-    print("..........")
+    if args.n_cpus > 1:
+        utrs = sorted(utrs, itemgetter('chr'), itemgetter('start'))
     df_gff, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
 
     instance_handle_gff.write_gff(df_gff, route_gff3)
