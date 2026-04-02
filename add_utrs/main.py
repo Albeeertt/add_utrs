@@ -96,7 +96,7 @@ def execute_main_program():
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_five, list_value_idx_five, 'start', 0)
 
     if args.n_cpus > 1:
-        utrs = sorted(utrs, itemgetter('chr'), itemgetter('start'))
+        utrs = sorted(utrs, key = itemgetter('chr', 'start'))
     df_gff, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
 
     instance_handle_gff.write_gff(df_gff, route_gff3)
