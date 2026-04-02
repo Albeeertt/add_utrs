@@ -209,7 +209,6 @@ class HandleGFF:
           If 'clean_columns' is true, the dataframe is formatted to remove extra columns and be in GFF3 format.
         '''
         list_df_gff = gff.to_dict(orient='records')
-        print("antes: ", len(list_df_gff))
         n_five: int = 0
         n_three: int = 0
         for idx, utr in enumerate(utrs):
@@ -227,11 +226,10 @@ class HandleGFF:
                     del utr['three']
             list_df_gff.insert(new_idx+idx, utr)
 
-        print("después: ", len(list_df_gff))
         df_gff = pd.DataFrame(list_df_gff)
         if clean_columns:
             del df_gff['old_idx']
-        print(df_gff.shape)
+
         return df_gff, n_five, n_three
         
     def write_gff(self, gff: pd.DataFrame, route: str):

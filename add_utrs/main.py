@@ -94,11 +94,12 @@ def execute_main_program():
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_three, list_value_idx_three, 'end', 0)
     df_gff = instance_handle_gff.change_value(df_gff, list_idx_five, list_value_idx_five, 'start', 0)
 
+    print("..........")
+    print(utrs[0])
+    print("..........")
+    df_gff, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
 
-    df_gff_w_utrs, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
-
-    print(df_gff_w_utrs.shape)
-    instance_handle_gff.write_gff(df_gff_w_utrs, route_gff3)
+    instance_handle_gff.write_gff(df_gff, route_gff3)
 
     print("---")
     print("Número de genes válidos: ", len(records_gene_mRNA))
