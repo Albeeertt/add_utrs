@@ -76,8 +76,17 @@ pip install .
 | all_genes | Some genes in your annotation (from the GFF3 file provided as an argument) may already have UTRs annotated. If you include this argument when running the tool, UTRs will be calculated for all genes. If you omit it, only genes that don’t yet have annotated UTRs will be processed.      |
 | stringtie | True if you want to execute StringTie.      |
 | bams | Path to the folder containing the .bam files. If the StringTie argument is true, this parameter is required.      |
+| n_cpus | Parameter with a default value of 1. Number of CPUs to be used for parallelizing the process. If the number of CPUs exceeds the number of chromosomes, n_cpus will be equal to the number of chromosomes. |
+| mem | Parameter with a default value of 500M. Memory limit in MB |
+| length_overlap | Parameter with a default value of 0.8. Minimum overlap that must exist between the transcript and the gene |
+| length_utrs | Parameter with a default value of 0.5. Maximum length that UTRs can have relative to the gene. A value of 0.5 represents half the size of the gene. |
+| overlap_genes | Parameter with a default value of False. Avoid overlap between newly generated genes |
 
-# 5: Example
+# 5. Update the program
+
+If you want to update the program, you'll have to download it again :(
+
+# 6: Example
 
 The following execution will obtain the UTRs of all genes from the GFF3 file *Athaliana_447_Araport11.gene_exons.gff3* and generate a new GFF3 file called *output.gff3* in *atha_utrs* directory. Additionally, the *overlap.json* file is generated (in *atha_utrs* directory) to indicate transcripts that overlap with multiple genes.
 
@@ -91,10 +100,11 @@ The following execution will obtain the UTRs only for the genes that do not have
 add_utrs --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --out atha_utrs
 ```
 
-# 6: Explanation of the output
+# 7: Explanation of the output
 
 The program output will be:
 
 1. A new GFF3 file similar to the input file but with new samples added. These samples consist of new exons and UTRs generated for each gene isoform. Additionally, the start and end points of some samples (gene, mRNA, or exon) are modified to match the new samples.
 
 2. A json file with information about which transcripts (identifier) ​​overlap with various GFF3 genes (full sample).
+
