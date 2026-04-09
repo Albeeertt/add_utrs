@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
 import pandas as pd
+from operator import itemgetter
 
 def split_into_chunks(gtf: pd.DataFrame, gff: pd.DataFrame) -> List[Tuple[pd.DataFrame, pd.DataFrame]]:
     print("Splitting GFF and GTF files...")
@@ -10,4 +11,4 @@ def split_into_chunks(gtf: pd.DataFrame, gff: pd.DataFrame) -> List[Tuple[pd.Dat
                 for g2 in [gtf[gtf['chr'] == chr_value]]
                 ]
 
-    return list_chunks
+    return sorted(list_chunks, key=itemgetter('chr'))
