@@ -117,5 +117,11 @@ def execute_main_program():
     except MemoryError:
         print("Memory limit reached.")
 
+    except pd.errors.ParserError as e:
+        if "Calling read(nbytes) on source failed" in str(e):
+            print("Memory limit reached. (ParserError)")
+        else:
+            raise
+
     # instance_ProcessTranscript = ProcessTranscript(instance_compare.get_overlap_transcript_over_all_genes())
     # instance_ProcessTranscript.valid_genes(write_file=True,route=route_overlap)
