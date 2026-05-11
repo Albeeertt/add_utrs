@@ -111,7 +111,7 @@ def execute_main_program():
 
         instance_handle_gff.write_gff(df_gff, route_gff3)
         if args.n_cpus == 1:
-            instance_info.print_result()
+            instance_info.print_result(merge=True)
         else:
             dict_contenido_info = defaultdict(dict)
             for instance_info_chr_parallelize in instances_info:
@@ -120,17 +120,15 @@ def execute_main_program():
                         continue
                     dict_contenido_info[metric].update(chr_dict)
 
-            print("aaaaaaaaabbbbbbbbb")
-            print(dict_contenido_info)
-            print(".……………………………………………………………………………………………….")
+            instance_info.print_result(dict_contenido_info)
 
-        print("---")
-        print("Number of valid genes: ", len(records_gene_mRNA))
-        print("Number of genes without added UTRs: ", n_gen_without_utrs)
-        print("Number of 5'UTR added: ", n_five)
-        print("Number of 3'UTR added: ", n_three)
+        # print("---")
+        # print("Number of valid genes: ", len(records_gene_mRNA))
+        # print("Number of genes without added UTRs: ", n_gen_without_utrs)
+        # print("Number of 5'UTR added: ", n_five)
+        # print("Number of 3'UTR added: ", n_three)
 
-        print(".......................................................................................")
+        # print(".......................................................................................")
     except MemoryError:
         print("Memory limit reached.")
 
