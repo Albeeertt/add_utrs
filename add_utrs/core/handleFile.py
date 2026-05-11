@@ -13,7 +13,7 @@ class HandleGFF:
     '''
 
     def __init__(self):
-        self.struct_genes_in_CHR_and_strand = defaultdict(nested_dict)
+        self.struct_genes_in_CHR_and_strand = defaultdict(list)
 
     def obtain_gff(self, route: str, encoding: str = 'utf-8') -> pd.DataFrame:
         '''
@@ -71,7 +71,7 @@ class HandleGFF:
                 dict_idx_mRNA[record['Parent']][record['ID']]['start'] = record['start']
                 dict_idx_mRNA[record['Parent']][record['ID']]['end'] = record['end']
             elif record['type'] == "gene" and gene_produce_mRNA.get(record['ID'], -1) != -1:
-                self.struct_genes_in_CHR_and_strand[record['chr']][record['strand']].append(record)
+                self.struct_genes_in_CHR_and_strand[record['chr']].append(record)
                 if obtain_genes_produce_mRNA:
                     records_genes_produce_mRNA.append(record)
                 if idx_gen:
@@ -153,14 +153,12 @@ class HandleGFF:
         struct_genes_in_CHR_and_strand_order = {}
         for chr_key in self.struct_genes_in_CHR_and_strand.keys():
             struct_genes_in_CHR_and_strand_order[chr_key] = {}
-            for strand_key in self.struct_genes_in_CHR_and_strand[chr_key].keys():
-                struct_genes_in_CHR_and_strand_order[chr_key][strand_key] = {}
-                list_chr_strand: List[Dict] = self.struct_genes_in_CHR_and_strand[chr_key][strand_key]
-                struct_genes_in_CHR_and_strand_order[chr_key][strand_key]['start'] = sorted(list_chr_strand, key=itemgetter('start'))
-                struct_genes_in_CHR_and_strand_order[chr_key][strand_key]['end'] = sorted(list_chr_strand, key=itemgetter('end'))
+            list_chr_strand: List[Dict] = self.struct_genes_in_CHR_and_strand[chr_key]
+            struct_genes_in_CHR_and_strand_order[chr_key]['start'] = sorted(list_chr_strand, key=itemgetter('start'))
+            struct_genes_in_CHR_and_strand_order[chr_key]['end'] = sorted(list_chr_strand, key=itemgetter('end'))
         
         for record in list_records:
-            dict_list_start_end: Dict[str, List] = struct_genes_in_CHR_and_strand_order[record['chr']][record['strand']]
+            dict_list_start_end: Dict[str, List] = struct_genes_in_CHR_and_strand_order[record['chr']]
             limit_start, limit_end = self.obtain_limits_gene(record, dict_list_start_end['end'], dict_list_start_end['start'])
             dict_limits_genes[record['ID']] = (limit_start, limit_end)
 
