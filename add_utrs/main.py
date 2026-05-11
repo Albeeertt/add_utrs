@@ -53,6 +53,7 @@ def execute_main_program():
 
     OUTPUT_GFF3: str = 'output.gff3'
     OUTPUT_OVERLAP: str = 'overlap.json'
+    OUTPUT_INFO: str = 'info.txt'
 
     args = obtain_arguments()
     instance_info = Info()
@@ -111,7 +112,7 @@ def execute_main_program():
 
         instance_handle_gff.write_gff(df_gff, route_gff3)
         if args.n_cpus == 1:
-            instance_info.print_result(merge=True)
+            instance_info.print_result(file=args.out+OUTPUT_INFO,verbose=args.verbose,merge=True)
         else:
             dict_contenido_info = defaultdict(dict)
             for instance_info_chr_parallelize in instances_info:
@@ -120,7 +121,7 @@ def execute_main_program():
                         continue
                     dict_contenido_info[metric].update(chr_dict)
 
-            instance_info.print_result(dict_contenido_info)
+            instance_info.print_result(file=args.out+OUTPUT_INFO, verbose=args.verbose, dict_elements_chr=dict_contenido_info)
 
         # print("---")
         # print("Number of valid genes: ", len(records_gene_mRNA))

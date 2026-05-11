@@ -53,29 +53,58 @@ class Info:
     def merge_element(self):
         return {'n_transcript_p_chr': self.n_transcript_p_chr, 'n_isoformTranscript_p_chr': self.n_isoformTranscript_p_chr, 'n_genes_p_chr': self.n_genes_p_chr, 'n_isoformGenes_p_chr': self.n_isoformGenes_p_chr, 'n_genes_noUTR_p_chr': self.n_genes_noUTR_p_chr, 'n_isoformGenes_noUTR_p_chr': self.n_isoformGenes_noUTR_p_chr}
 
-    def print_result(self, dict_elements_chr = None, merge: bool = False):
+    def print_result(self, file: str, verbose: int, dict_elements_chr = None, merge: bool = False):
 
         if merge:
             dict_elements_chr = self.merge_element()
 
-        print(f"\t Results:")
-        print("#####################################")
-        print("#####################################")
-        print("#####################################")
 
-        for key_chr in dict_elements_chr['n_transcript_p_chr']:
-            print(f"There are {dict_elements_chr['n_transcript_p_chr'][key_chr]} transcripts for the {key_chr} chromosome.")
-            print(f"There are {dict_elements_chr['n_isoformTranscript_p_chr'][key_chr]} isoforms of transcripts for the {key_chr} chromosome.")
+        if verbose == 2:
+            print(f"\t Results:")
+            print("#####################################")
+            print("#####################################")
+            print("#####################################")
 
-        for key_chr in dict_elements_chr['n_genes_p_chr']:
-            print(f"There are {dict_elements_chr['n_genes_p_chr'][key_chr]} genes for the {key_chr} chromosome.")
-            print(f"There are {dict_elements_chr['n_isoformGenes_p_chr'][key_chr]} gene isoforms for the {key_chr} chromosome.")
+            for key_chr in dict_elements_chr['n_transcript_p_chr']:
+                print(f"There are {dict_elements_chr['n_transcript_p_chr'][key_chr]} transcripts for the {key_chr} chromosome.")
+                print(f"There are {dict_elements_chr['n_isoformTranscript_p_chr'][key_chr]} isoforms of transcripts for the {key_chr} chromosome.")
+                print(".........")
 
-        for key_chr in dict_elements_chr['n_genes_noUTR_p_chr']:
-            print(f"The number of genes to which UTRs have not been added is {dict_elements_chr['n_genes_noUTR_p_chr'][key_chr]} on the {key_chr} chromosome.")
-            print(f"The number of gene isoforms to which UTRs have not been added is {dict_elements_chr['n_isoformGenes_noUTR_p_chr'][key_chr]} on the {key_chr} chromosome.")
+            print("....................................................................")
 
+            for key_chr in dict_elements_chr['n_genes_p_chr']:
+                print(f"There are {dict_elements_chr['n_genes_p_chr'][key_chr]} genes for the {key_chr} chromosome.")
+                print(f"There are {dict_elements_chr['n_isoformGenes_p_chr'][key_chr]} gene isoforms for the {key_chr} chromosome.")
+                print(".........")
 
-        print("#####################################")
-        print("#####################################")
-        print("#####################################\n\n\n")
+            print("....................................................................")
+
+            for key_chr in dict_elements_chr['n_genes_noUTR_p_chr']:
+                print(f"The number of genes to which UTRs have not been added is {dict_elements_chr['n_genes_noUTR_p_chr'][key_chr]} on the {key_chr} chromosome.")
+                print(f"The number of gene isoforms to which UTRs have not been added is {dict_elements_chr['n_isoformGenes_noUTR_p_chr'][key_chr]} on the {key_chr} chromosome.")
+                print(".........")
+
+            print("....................................................................")
+
+            print("#####################################")
+            print("#####################################")
+            print("#####################################\n\n\n")
+        
+        with open(file, "w") as f:
+            for key_chr in dict_elements_chr['n_transcript_p_chr']:
+                f.write(
+                    f"There are {dict_elements_chr['n_transcript_p_chr'][key_chr]} transcripts for the {key_chr} chromosome."
+                    f"There are {dict_elements_chr['n_isoformTranscript_p_chr'][key_chr]} isoforms of transcripts for the {key_chr} chromosome."
+                )
+
+            for key_chr in dict_elements_chr['n_genes_p_chr']:
+                f.write(
+                    f"There are {dict_elements_chr['n_genes_p_chr'][key_chr]} genes for the {key_chr} chromosome."
+                    f"There are {dict_elements_chr['n_isoformGenes_p_chr'][key_chr]} gene isoforms for the {key_chr} chromosome."
+                )
+
+            for key_chr in dict_elements_chr['n_genes_noUTR_p_chr']:
+                f.write(
+                    f"The number of genes to which UTRs have not been added is {dict_elements_chr['n_genes_noUTR_p_chr'][key_chr]} on the {key_chr} chromosome."
+                    f"The number of gene isoforms to which UTRs have not been added is {dict_elements_chr['n_isoformGenes_noUTR_p_chr'][key_chr]} on the {key_chr} chromosome."
+                )
