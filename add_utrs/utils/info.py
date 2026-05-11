@@ -46,8 +46,8 @@ class Info:
                     self.n_isoformGenes_p_chr[key_chromosome] += 1
 
     def info_noUTRadd(self, record):
-        self.n_genes_noUTR_p_chr += 1
-        self.n_isoformGenes_noUTR_p_chr += len(self.genes_struct[record['chr']][record['ID']])
+        self.n_genes_noUTR_p_chr[record['chr']] += 1
+        self.n_isoformGenes_noUTR_p_chr[record['chr']] += len(self.genes_struct[record['chr']][record['ID']])
         
     def print_result(self):
 
