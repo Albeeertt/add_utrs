@@ -50,7 +50,7 @@ class Info:
         self.n_genes_noUTR_p_chr[record['chr']] += 1
         self.n_isoformGenes_noUTR_p_chr[record['chr']] += len(self.genes_struct[record['chr']][record['ID']])
         
-    def print_result(self):
+    def print_result(self, chr: str):
 
         print("\t Results:")
         print("#####################################")

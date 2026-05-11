@@ -114,10 +114,11 @@ def execute_main_program():
         else:
             dict_contenido_info = {}
             for instance_info_chr_parallelize in instances_info:
-                attr_chr = vars(instance_info_chr_parallelize)
-                # print(list(attr_chr.keys()))
-                del attr_chr["genes_struct"]
-                dict_contenido_info.update(attr_chr)
+                for metric, chr_dict in vars(instance_info_chr_parallelize).items():
+                    if metric == "genes_struct":
+                        continue
+                    dict_contenido_info[metric].update(chr_dict)
+
             print("aaaaaaaaabbbbbbbbb")
             print(dict_contenido_info)
             print(".……………………………………………………………………………………………….")
