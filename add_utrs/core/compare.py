@@ -172,6 +172,7 @@ class Compare:
                 
             if no_utr:
                 self._instance_info.info_noUTRadd(gene)
+                n_gen_without_utrs += 1
             best_min = np.inf
             best_max = 0
             for key in gene_iso_best:
@@ -190,7 +191,7 @@ class Compare:
             list_value_idx_gene.append((min(best_min, dict_idx_gen[gene['ID']]['start']), max(best_max, dict_idx_gen[gene['ID']]['end'])))
 
 
-        return utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs
+        return utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs, self._instance_info
     
 
             

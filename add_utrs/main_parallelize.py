@@ -28,7 +28,7 @@ def parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_com
     stage4 = Stage(
         func=instance_compare.compare_gff_gtf,
         inputs=['records_gene_mRNA', 'records_transcript', 'structure_transcript', 'structure_gene', 'dict_limits_genes', 'dict_idx_gen', 'dict_idx_mRNA', 'dict_idx_exon_three', 'dict_idx_exon_five'],
-        outputs=['utrs', 'list_idx_gene', 'list_value_idx_gene', 'list_idx_mRNA', 'list_value_idx_mRNA', 'list_idx_five', 'list_value_idx_five', 'list_idx_three', 'list_value_idx_three', 'n_gen_without_utrs']
+        outputs=['utrs', 'list_idx_gene', 'list_value_idx_gene', 'list_idx_mRNA', 'list_value_idx_mRNA', 'list_idx_five', 'list_value_idx_five', 'list_idx_three', 'list_value_idx_three', 'n_gen_without_utrs', 'instance_info']
     )
     result_chr = []
     for i in range(0, len(list_chunks), args.n_cpus):
@@ -47,6 +47,7 @@ def parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_com
     list_value_idx_three = []
     n_gen_without_utrs = 0
     records_gene_mRNA = []
+    instances_info = []
     for result_cpu in result_chr:
         utrs.extend(result_cpu['utrs'])
         list_idx_gene.extend(result_cpu['list_idx_gene'])
@@ -59,6 +60,7 @@ def parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_com
         list_value_idx_three.extend(result_cpu['list_value_idx_three'])
         records_gene_mRNA.extend(result_cpu['records_gene_mRNA'])
         n_gen_without_utrs += result_cpu['n_gen_without_utrs']
+        instances_info.append(result_cpu['instance_info'])
         
 
     return records_gene_mRNA, utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs

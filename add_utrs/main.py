@@ -88,12 +88,12 @@ def execute_main_program():
         df_gtf: pd.DataFrame = instance_handle_gtf.obtain_gtf(gtf)
 
         if args.n_cpus > 1:
-            records_gene_mRNA, utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs = parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_compare, df_gff, df_gtf, args)
+            records_gene_mRNA, utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs, instances_info = parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_compare, df_gff, df_gtf, args)
         else:
             records_transcript, structure_transcript = instance_handle_gtf.extract_info_gtf(df_gtf)
             records_gene_mRNA, structure_gene, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five = instance_handle_gff.obtain_gene_w_mRNA(df_gff, args.all_genes)
             dict_limits_genes = instance_handle_gff.extract_all_limits_gene(records_gene_mRNA)
-            utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs = instance_compare.compare_gff_gtf(records_gene_mRNA, records_transcript, structure_transcript, structure_gene, dict_limits_genes, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five)
+            utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs, _ = instance_compare.compare_gff_gtf(records_gene_mRNA, records_transcript, structure_transcript, structure_gene, dict_limits_genes, dict_idx_gen, dict_idx_mRNA, dict_idx_exon_three, dict_idx_exon_five)
         
         df_gff = instance_handle_gff.change_value(df_gff, list_idx_gene, [v[0] for v in list_value_idx_gene], 'start', 0)
         df_gff = instance_handle_gff.change_value(df_gff, list_idx_gene, [v[1] for v in list_value_idx_gene], 'end', 0)
@@ -109,8 +109,16 @@ def execute_main_program():
         df_gff, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
 
         instance_handle_gff.write_gff(df_gff, route_gff3)
-
-        instance_info.print_result()
+        if args.n_cpus == 1:
+            instance_info.print_result()
+        else:
+            dict_contenido_info = {}
+            for instance_info_chr_parallelize in instances_info:
+                print("prueba: ", instance_info_chr_parallelize.n_genes_p_chr)
+                dict_contenido_info.update(vars(instance_info_chr_parallelize))
+            print("aaaaaaaaabbbbbbbbb")
+            print(dict_contenido_info)
+            print(".……………………………………………………………………………………………….")
 
         print("---")
         print("Number of valid genes: ", len(records_gene_mRNA))
