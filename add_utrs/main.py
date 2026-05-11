@@ -6,6 +6,7 @@ import pandas as pd
 import time
 import resource
 from operator import itemgetter
+from collections import defaultdict
 
 from add_utrs.utils.info import Info
 from add_utrs.core.handleFile import HandleGFF, HandleGTF
@@ -112,7 +113,7 @@ def execute_main_program():
         if args.n_cpus == 1:
             instance_info.print_result()
         else:
-            dict_contenido_info = {}
+            dict_contenido_info = defaultdict(dict)
             for instance_info_chr_parallelize in instances_info:
                 for metric, chr_dict in vars(instance_info_chr_parallelize).items():
                     if metric == "genes_struct":
