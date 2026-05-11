@@ -114,8 +114,9 @@ def execute_main_program():
         else:
             dict_contenido_info = {}
             for instance_info_chr_parallelize in instances_info:
-                print("prueba: ", instance_info_chr_parallelize.n_genes_p_chr)
-                dict_contenido_info.update(vars(instance_info_chr_parallelize))
+                attr_chr = vars(instance_info_chr_parallelize)
+                delattr(attr_chr, "genes_struct")
+                dict_contenido_info.update(attr_chr)
             print("aaaaaaaaabbbbbbbbb")
             print(dict_contenido_info)
             print(".……………………………………………………………………………………………….")
