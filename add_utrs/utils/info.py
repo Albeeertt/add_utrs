@@ -18,6 +18,7 @@ class Info:
 
     def print_arguments(self, args: argparse.Namespace):
 
+        print("\n\n\n")
         print("\t Applied arguments:")
         print("#####################################")
         print("#####################################")

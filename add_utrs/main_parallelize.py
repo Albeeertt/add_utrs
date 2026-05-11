@@ -63,4 +63,4 @@ def parallelize_main_part(instance_handle_gff, instance_handle_gtf, instance_com
         instances_info.append(result_cpu['instance_info'])
         
 
-    return records_gene_mRNA, utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs
+    return records_gene_mRNA, utrs, list_idx_gene, list_value_idx_gene, list_idx_mRNA, list_value_idx_mRNA, list_idx_five, list_value_idx_five, list_idx_three, list_value_idx_three, n_gen_without_utrs, instances_info
