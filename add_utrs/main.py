@@ -115,6 +115,7 @@ def execute_main_program():
             dict_contenido_info = {}
             for instance_info_chr_parallelize in instances_info:
                 attr_chr = vars(instance_info_chr_parallelize)
+                print(list(attr_chr.keys()))
                 delattr(attr_chr, "genes_struct")
                 dict_contenido_info.update(attr_chr)
             print("aaaaaaaaabbbbbbbbb")
