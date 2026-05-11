@@ -7,7 +7,7 @@ import time
 import resource
 from operator import itemgetter
 
-from add_utrs.utils.info import print_arguments
+from add_utrs.utils.info import Info
 from add_utrs.core.handleFile import HandleGFF, HandleGTF
 from add_utrs.core.compare import Compare
 from add_utrs.utils.postProcess import ProcessTranscript
@@ -22,15 +22,16 @@ def obtain_arguments():
 
     parser.add_argument('--gff', type=str, required=True, help="Path to GFF file.")
     parser.add_argument('--gtf', type=str, help="Path to stringtie output.")
-    parser.add_argument('--stringtie', action="store_true", help="Execute stringtie.")
-    parser.add_argument('--bams', type=str, help="Path to bams dir.")
     parser.add_argument('--out', type=str, required=True, help='Path to output directory')
-    parser.add_argument('--all_genes', action="store_true", help="Some genes in your annotation (from the GFF3 file provided as an argument) may already have UTRs annotated. If you include this argument when running the tool, UTRs will be calculated for all genes. If you omit it, only genes that don’t yet have annotated UTRs will be processed.")
-    parser.add_argument('--length_overlap', type=float, default=0.8, help="")
-    parser.add_argument('--length_utrs', type=float, default=0.5, help="")
-    parser.add_argument('--overlap_genes', action='store_true', help="")
     parser.add_argument('--n_cpus', type=int, default=1, help="")
     parser.add_argument('--mem', type=int, default=500, help="")
+    parser.add_argument('--all_genes', action="store_true", help="Some genes in your annotation (from the GFF3 file provided as an argument) may already have UTRs annotated. If you include this argument when running the tool, UTRs will be calculated for all genes. If you omit it, only genes that don’t yet have annotated UTRs will be processed.")
+    parser.add_argument('--overlap_genes', action='store_true', help="")
+    parser.add_argument('--length_overlap', type=float, default=0.8, help="")
+    parser.add_argument('--length_utrs', type=float, default=0.5, help="")
+    parser.add_argument('--stringtie', action="store_true", help="Execute stringtie.")
+    parser.add_argument('--bams', type=str, help="Path to bams dir.")
+    parser.add_argument('--verbose', type=int, default=2, help="0 or 2")
     return parser.parse_args()
 
 def execute_main_program():
@@ -53,7 +54,8 @@ def execute_main_program():
     OUTPUT_OVERLAP: str = 'overlap.json'
 
     args = obtain_arguments()
-    print_arguments(args)
+    instance_info = Info()
+    instance_info.print_arguments(args)
 
     max_heap_size = args.mem * 1024 * 1024
     resource.setrlimit(resource.RLIMIT_AS, (max_heap_size, max_heap_size))

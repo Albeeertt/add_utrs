@@ -273,6 +273,8 @@ class HandleGTF:
 
 
         for record in list_gtf:
+            if record['type'] == 'mRNA':
+                record['type'] = 'transcript'
             record['attributes'] = record['attributes'].strip()
             if record['type'] == 'transcript':
                 id_record: str = [ attribute.split(' ')[1] for attribute in record['attributes'].split(';') if attribute.split(' ')[0] == 'gene_id'][0]
