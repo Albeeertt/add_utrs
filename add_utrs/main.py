@@ -7,7 +7,7 @@ import time
 import resource
 from operator import itemgetter
 
-
+from add_utrs.utils.info import print_arguments
 from add_utrs.core.handleFile import HandleGFF, HandleGTF
 from add_utrs.core.compare import Compare
 from add_utrs.utils.postProcess import ProcessTranscript
@@ -53,6 +53,7 @@ def execute_main_program():
     OUTPUT_OVERLAP: str = 'overlap.json'
 
     args = obtain_arguments()
+    print_arguments(args)
 
     max_heap_size = args.mem * 1024 * 1024
     resource.setrlimit(resource.RLIMIT_AS, (max_heap_size, max_heap_size))
