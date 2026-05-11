@@ -80,9 +80,9 @@ def execute_main_program():
             subprocess.run([f'stringtie {string_bams} -o ss_utr.gtf'], shell=True)
             gtf = './ss_utr.gtf'
 
-        instance_handle_gff = HandleGFF()
-        instance_handle_gtf = HandleGTF()
-        instance_compare = Compare(args.length_overlap, args.length_utrs, args.overlap_genes)
+        instance_handle_gff = HandleGFF(instance_info)
+        instance_handle_gtf = HandleGTF(instance_info)
+        instance_compare = Compare(instance_info, args.length_overlap, args.length_utrs, args.overlap_genes)
 
         df_gff: pd.DataFrame = instance_handle_gff.obtain_gff(gff)
         df_gtf: pd.DataFrame = instance_handle_gtf.obtain_gtf(gtf)
@@ -109,6 +109,8 @@ def execute_main_program():
         df_gff, n_five, n_three = instance_handle_gff.add_utrs(df_gff, utrs, clean_columns=True)
 
         instance_handle_gff.write_gff(df_gff, route_gff3)
+
+        instance_info.print_result()
 
         print("---")
         print("Number of valid genes: ", len(records_gene_mRNA))

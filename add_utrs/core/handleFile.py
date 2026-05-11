@@ -12,8 +12,10 @@ class HandleGFF:
     - The HandleGFF class contains all the functions associated with handling a GFF3.
     '''
 
-    def __init__(self):
+    def __init__(self, instance_info):
         self.struct_genes_in_CHR_and_strand = defaultdict(list)
+        self._instance_info = instance_info
+        self.genesmRNA = {}
 
     def obtain_gff(self, route: str, encoding: str = 'utf-8') -> pd.DataFrame:
         '''
@@ -38,7 +40,6 @@ class HandleGFF:
                 ids_records[record['ID']] = record
                 if record['type'] == 'mRNA':
                     gene_produce_mRNA[record['Parent']] = record['ID']
-
 
         return new_list_records, ids_records, gene_produce_mRNA
     
@@ -70,6 +71,11 @@ class HandleGFF:
                 dict_idx_mRNA[record['Parent']][record['ID']]['old_idx'] = record['old_idx']
                 dict_idx_mRNA[record['Parent']][record['ID']]['start'] = record['start']
                 dict_idx_mRNA[record['Parent']][record['ID']]['end'] = record['end']
+
+                self.genesmRNA.setdefault(record['chr'], {})
+                self.genesmRNA[record['chr']].setdefault(record['Parent'], {})
+                self.genesmRNA[record['chr']][record['Parent']][record['ID']] = record
+
             elif record['type'] == "gene" and gene_produce_mRNA.get(record['ID'], -1) != -1:
                 self.struct_genes_in_CHR_and_strand[record['chr']].append(record)
                 if obtain_genes_produce_mRNA:
@@ -79,6 +85,8 @@ class HandleGFF:
                     dict_idx_gen[record['ID']]['old_idx'] = record['old_idx']
                     dict_idx_gen[record['ID']]['start'] = record['start']
                     dict_idx_gen[record['ID']]['end'] = record['end']
+
+        self._instance_info.info_count_genes(self.genesmRNA)
 
         return dict_cds_isoform, dict_exon_isoform, records_genes_produce_mRNA, remove_for_utr, dict_idx_gen, dict_idx_mRNA
             
@@ -246,8 +254,9 @@ class HandleGTF:
     - The HandleGTF class contains all the functions associated with handling a GTF.
     '''
 
-    def __init__(self):
+    def __init__(self, instance_info):
         self.transcripts = {}
+        self._instance_info = instance_info
 
     def obtain_gtf(self, route: str, encoding: str = 'utf-8') -> pd.DataFrame:
         '''
@@ -282,11 +291,11 @@ class HandleGTF:
                 record['ID_gene'] = id_record.replace('"', '')
                 record['ID_transcript'] = id_transcript.replace('"', '')
                 dict_gtf[record['chr']][record['strand']].append(record)
-                if self.transcripts.get(id_record, -1) != -1:
-                    self.transcripts[id_record][id_transcript] = record
-                else: 
-                    self.transcripts[id_record] = {}
-                    self.transcripts[id_record][id_transcript] = record
+
+                self.transcripts.setdefault(record['chr'], {})
+                self.transcripts[record['chr']].setdefault(id_record, {})
+                self.transcripts[record['chr']][id_record][id_transcript] = record
+
             else:
                 id_record: str = [ attribute.split(' ')[1] for attribute in record['attributes'].split(';') if attribute.split(' ')[0] == 'gene_id'][0]
                 id_transcript: str = [ attribute.strip().split(' ')[1] for attribute in record['attributes'].split(';') if attribute.strip().split(' ')[0] == 'transcript_id'][0]
@@ -301,6 +310,8 @@ class HandleGTF:
                     dict_transcript_exon[id_record][id_transcript] = [record]
                 else:
                     dict_transcript_exon[id_record][id_transcript].append(record)
+
+        self._instance_info.info_count_transcripts(self.transcripts)
 
         return dict_gtf, dict_transcript_exon
     

@@ -14,12 +14,13 @@ class Compare:
     - The Compare class contains the functions to find overlaps between the samples in the GFF file and the GTF file.
     '''
 
-    def __init__(self, proportion: float = 4/5, proportion_utrs: float = 1/2, overlap_genes: bool = False):
+    def __init__(self, instance_info, proportion: float = 4/5, proportion_utrs: float = 1/2, overlap_genes: bool = False):
         self.instance_metrics = Metrics()
         self.transcript_overlap_genes = None
         self.proportion = proportion
         self.proportion_utrs = proportion_utrs
         self.overlap_genes = overlap_genes
+        self._instance_info = instance_info
 
 
     def compare(self, list_transcript: List[Dict], list_content_isoform: List[Dict], start_limit, end_limit) -> Tuple:
@@ -170,7 +171,7 @@ class Compare:
                 j += 1
                 
             if no_utr:
-                n_gen_without_utrs += 1
+                self._instance_info.info_noUTRadd(gene)
             best_min = np.inf
             best_max = 0
             for key in gene_iso_best:
