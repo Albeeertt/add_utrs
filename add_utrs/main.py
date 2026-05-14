@@ -73,6 +73,7 @@ def execute_main_program():
 
         route_gff3: str = args.out+OUTPUT_GFF3 if args.out.endswith('/') else args.out+'/'+OUTPUT_GFF3
         route_overlap: str = args.out+OUTPUT_OVERLAP if args.out.endswith('/') else args.out+'/'+OUTPUT_OVERLAP
+        route_info: str = args.out+OUTPUT_INFO if args.out.endswith('/') else args.out+'/'+OUTPUT_INFO
 
         if args.stringtie:
             string_bams = ""
@@ -112,7 +113,7 @@ def execute_main_program():
 
         instance_handle_gff.write_gff(df_gff, route_gff3)
         if args.n_cpus == 1:
-            instance_info.print_result(file=args.out+OUTPUT_INFO,verbose=args.verbose,merge=True)
+            instance_info.print_result(file=route_info,verbose=args.verbose,merge=True)
         else:
             dict_contenido_info = defaultdict(dict)
             for instance_info_chr_parallelize in instances_info:
@@ -121,7 +122,7 @@ def execute_main_program():
                         continue
                     dict_contenido_info[metric].update(chr_dict)
 
-            instance_info.print_result(file=args.out+OUTPUT_INFO, verbose=args.verbose, dict_elements_chr=dict_contenido_info)
+            instance_info.print_result(file=route_info, verbose=args.verbose, dict_elements_chr=dict_contenido_info)
 
         # print("---")
         # print("Number of valid genes: ", len(records_gene_mRNA))
