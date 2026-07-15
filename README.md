@@ -92,13 +92,13 @@ If you want to update the program, you'll have to download it again :(
 The following execution will obtain the UTRs of all genes from the GFF3 file *Athaliana_447_Araport11.gene_exons.gff3* and generate a new GFF3 file called *output.gff3* in *atha_utrs* directory. Additionally, the *overlap.json* file is generated (in *atha_utrs* directory) to indicate transcripts that overlap with multiple genes.
 
 ```bash
-add_utrs --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --all_genes --out atha_utrs
+add_utrs --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --all_genes --out atha_utrs --n_cpus 1 --mem 9000
 ```
 
 The following execution will obtain the UTRs only for the genes that do not have UTRs annotated from the GFF3 file *Athaliana_447_Araport11.gene_exons.gff3* and will generate a new GFF3 file called *output.gff3* in *atha_utrs* directory. Additionally, the *overlap.json* file is generated (in *atha_utrs* directory) to indicate transcripts that overlap with multiple genes.
 
 ```bash
-add_utrs --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --out atha_utrs
+add_utrs --gff ../Athaliana_447_Araport11.gene_exons.gff3 --gtf ../Artha_AllRNASeq.STAR.TAIR10.gtf --out atha_utrs --n_cpus 1 --mem 9000
 ```
 
 # 7: Explanation of the output
